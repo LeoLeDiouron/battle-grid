@@ -33,10 +33,12 @@
     let gameItems = initGameItems();
 
     // about selection scene
-    let money = 50;
+    let money = 100;
     const army = {
         peasant: 0,
-        ninja: 0
+        ninja: 0,
+        knight: 0,
+        bowman: 0
     };
 
     // about graphics (in round)
@@ -55,14 +57,22 @@
             price: 10
         },
         ninja: {
-            description: "Ninja: fast. strong. handsome. (30 gold)",
+            description: "Ninja: fast. strong. handsome. (20 gold)",
+            price: 20
+        },
+        knight: {
+            description: "Knight: here to rescue the princess and kick some ass. (40 gold)",
+            price: 40
+        },
+        bowman: {
+            description: "Bowman: [need to find a description]. (40 gold)",
             price: 30
         }
     }
 
     // about api
-    // const baseUrl = "http://localhost:8080/api";
-    const baseUrl = "http://192.168.0.25:8080/api";
+    const baseUrl = "http://localhost:8080/api";
+    //const baseUrl = "http://192.168.0.25:8080/api";
 
     /*  _________________________________ PHASER FUNCTIONS _________________________________ */
 
@@ -78,9 +88,12 @@
         // load units
         game.load.image('peasant', 'assets/images/units/peasant.png');
         game.load.image('ninja', 'assets/images/units/ninja.png');
+        game.load.image('knight', 'assets/images/units/knight.png');
+        game.load.image('bowman', 'assets/images/units/bowman.png');
         // load images action
         game.load.image('attack', 'assets/images/round/attack.png');
         game.load.image('move', 'assets/images/round/move.png');
+        game.load.image('range', 'assets/images/round/range.png');
         // load font
         game.load.bitmapFont('font', 'assets/fonts/font.png', 'assets/fonts/font.xml');
     }
@@ -224,7 +237,7 @@
         selectionItems.text['money'] = game.add.bitmapText(0, windowHeight / 2 - 200, 'font', `${money} gold`, 30);
         selectionItems.text['money'].centerX = windowWidth / 2;
         // add buttons selection
-        const listUnits = ["peasant", "ninja"];
+        const listUnits = ["peasant", "ninja", "knight", "bowman"];
         let idx = 0 - listUnits.length / 2;
         for (const unit of listUnits) {
             selectionItems.buttons[unit] = game.add.button(windowWidth / 2 + (idx * 150), windowHeight / 2, unit, () => {displayUnitDetails(unit);});
@@ -312,6 +325,7 @@
     /* _________________________________ SCENE 3 - ROUND _________________________________ */
 
     function displayGrid() {
+        gameItems.text["turn"] = game.add.bitmapText(beginX, beginY - 80, 'font', '', 30);
         gameItems.text["statsLine"] = game.add.bitmapText(beginX, beginY - 50, 'font', '', 30);
         gameItems.graphics = game.add.graphics(beginX, beginY);
         gameItems.graphics.lineStyle(2, 0xFFFFFF, 1);
@@ -418,15 +432,20 @@
             destroyMoves();
         }
         gameItems.buttons["move"] = [];
-        for (let offsetX = unit.x - unit.move; offsetX <= unit.x + unit.move; offsetX++) {
-            for (let offsetY = unit.y - unit.move; offsetY <= unit.y + unit.move; offsetY++) {
+        for (let offsetX = unit.x - (unit.move + unit.range); offsetX <= unit.x + (unit.move + unit.range); offsetX++) {
+            for (let offsetY = unit.y - (unit.move + unit.range); offsetY <= unit.y + (unit.move + unit.range); offsetY++) {
                 const idxEnemy = isOnEnemy(offsetX, offsetY)
                 if (idxEnemy !== -1) {
                     const buttonMove = game.add.button(beginX + (offsetX * sizeCell), beginY  + (offsetY * sizeCell), 'attack', () => {attackEnemy(unit, idxEnemy)});
                     buttonMove.scale.setTo(0.1, 0.1);
                     gameItems.buttons["move"].push(buttonMove);
                 } else if (haveToDisplayMove(offsetX, offsetY, unit)) {
-                    const buttonMove = game.add.button(beginX + (offsetX * sizeCell), beginY  + (offsetY * sizeCell), 'move', () => {moveUnit(unit, offsetX, offsetY)});
+                    let buttonMove = null;
+                    if ((offsetX >= unit.x - unit.move && offsetX <= unit.x + unit.move) && (offsetY >= unit.y - unit.move && offsetY <= unit.y + unit.move)) {
+                        buttonMove = game.add.button(beginX + (offsetX * sizeCell), beginY  + (offsetY * sizeCell), 'move', () => {moveUnit(unit, offsetX, offsetY)});
+                    } else {
+                        buttonMove = game.add.button(beginX + (offsetX * sizeCell), beginY  + (offsetY * sizeCell), 'range', () => {});
+                    }
                     buttonMove.scale.setTo(0.15, 0.15);
                     gameItems.buttons["move"].push(buttonMove);
                 }
@@ -467,7 +486,12 @@
             if (turnOver === true) {
                 const url = `${baseUrl}/turn_over/${idRoom}?idPlayer=${idPlayer}`;
                 sendRequest(url, "GET");
+                gameItems.text["turn"].text = "Enemy's turn";
+            } else {
+                gameItems.text["turn"].text = "Your turn";
             }
+        } else {
+            gameItems.text["turn"].text = "Enemy's turn";
         }
     }
 

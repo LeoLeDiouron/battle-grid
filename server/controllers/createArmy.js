@@ -1,7 +1,11 @@
 const statsAllUnit = {
     peasant: createUnitType("peasant", 10, 4, 2, 0),
-    ninja: createUnitType("ninja", 10, 6, 3, 0)
+    ninja: createUnitType("ninja", 10, 6, 3, 0),
+    knight: createUnitType("knight", 25, 8, 2, 0),
+    bowman: createUnitType("bowman", 8, 5, 1, 5),
 };
+
+const listUnits = ["peasant", "ninja", "knight", "bowman"];
 
 function createUnitType(type, hp, dmg, move, range) {
     return {
@@ -18,7 +22,6 @@ function generateJsonArmy(nbUnits, idRoom, idPlayer) {
     let idxUnit = 0;
     let x = 1;
     let y = (isFirstPlayer(idRoom, idPlayer) === true) ? 12 : 2;
-    const listUnits = ["peasant", "ninja"];
     for (const unit of listUnits) {
         for (let idx = 0; idx < nbUnits[unit]; idx++) {
             const newUnit = copyJson(statsAllUnit[unit]);
