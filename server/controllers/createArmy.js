@@ -3,6 +3,7 @@ const statsAllUnit = {
     ninja: createUnitType("ninja", 10, 6, 3, 0),
     knight: createUnitType("knight", 25, 8, 2, 0),
     bowman: createUnitType("bowman", 8, 5, 1, 5),
+    king: createUnitType("king", 12, 6, 1, 1),
 };
 
 const listUnits = ["peasant", "ninja", "knight", "bowman"];
@@ -17,11 +18,21 @@ function copyJson(json) {
     return JSON.parse(JSON.stringify(json));
 }
 
+function getKingStats(firstPlayer, idxUnit) {
+    const king = copyJson(statsAllUnit.king);
+    king["x"] = 7;
+    king["y"] = (firstPlayer === true) ? 14 : 0;
+    king["idx"] = idxUnit;
+    king["hasMoved"] = false;
+    return king;
+}
+
 function generateJsonArmy(nbUnits, idRoom, idPlayer) {
+    const firstPlayer = isFirstPlayer(idRoom, idPlayer)
     const army = [];
     let idxUnit = 0;
     let x = 1;
-    let y = (isFirstPlayer(idRoom, idPlayer) === true) ? 12 : 2;
+    let y = (firstPlayer === true) ? 12 : 2;
     for (const unit of listUnits) {
         for (let idx = 0; idx < nbUnits[unit]; idx++) {
             const newUnit = copyJson(statsAllUnit[unit]);
@@ -38,6 +49,7 @@ function generateJsonArmy(nbUnits, idRoom, idPlayer) {
             idxUnit++;
         }
     }
+    army.push(getKingStats(firstPlayer, idxUnit))
     return army;
 }
 
