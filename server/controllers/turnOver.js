@@ -10,8 +10,6 @@ function turnOver(req, res, next) {
     for (let i = 0; i < global.ROOMS[idRoom][idOtherPlayer].army.length; i++) {
         global.ROOMS[idRoom][idOtherPlayer].army[i].hasMoved = false;
     }
-    console.log("TURN oVER");
-    console.log(global.ROOMS[idRoom])
     res.send({});
 }
 

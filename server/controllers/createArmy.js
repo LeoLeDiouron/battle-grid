@@ -31,6 +31,10 @@ function generateJsonArmy(nbUnits, idRoom, idPlayer) {
             newUnit["hasMoved"] = false;
             army.push(newUnit);
             x += 2;
+            if (x > 14) {
+                x = 2;
+                y = (isFirstPlayer(idRoom, idPlayer) === true) ? y + 1 : y - 1;
+            }
             idxUnit++;
         }
     }
