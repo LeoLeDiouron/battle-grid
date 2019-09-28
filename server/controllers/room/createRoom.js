@@ -9,6 +9,9 @@ function createRoom(req, res, next) {
     global.ROOMS[idRoom] = {
         status: 1,
         turnPlayer: null,
+        nbActions: 3,
+        winner: null,
+        firstPlayer: req.query.idPlayer,
         players: []
     };
     global.ROOMS[idRoom][req.query.idPlayer] = {};

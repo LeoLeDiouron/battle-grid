@@ -4,7 +4,7 @@ const statsAllUnit = {
     knight: createUnitType("knight", 25, 8, 2, 0),
     goldenKnight: createUnitType("goldenKnight", 40, 10, 2, 1),
     bowman: createUnitType("bowman", 8, 5, 1, 4),
-    king: createUnitType("king", 12, 6, 1, 0),
+    king: createUnitType("king", 1, 6, 1, 0),
 };
 
 const listUnits = ["peasant", "ninja", "knight", "goldenKnight", "bowman"];
@@ -24,7 +24,7 @@ function getKingStats(firstPlayer, idxUnit) {
     king["x"] = 7;
     king["y"] = (firstPlayer === true) ? 14 : 0;
     king["idx"] = idxUnit;
-    king["hasMoved"] = false;
+    king["hasAttacked"] = false;
     return king;
 }
 
@@ -40,7 +40,7 @@ function generateJsonArmy(nbUnits, idRoom, idPlayer) {
             newUnit["x"] = x;
             newUnit["y"] = y;
             newUnit["idx"] = idxUnit;
-            newUnit["hasMoved"] = false;
+            newUnit["hasAttacked"] = false;
             army.push(newUnit);
             x += 2;
             if (x > 14) {
@@ -64,7 +64,7 @@ function checkReady(idRoom) {
 }
 
 function isFirstPlayer(idRoom, idPlayer) {
-    if (global.ROOMS[idRoom].players[0] === idPlayer) {
+    if (global.ROOMS[idRoom].firstPlayer === idPlayer) {
         return true;
     } else {
         return false;
@@ -79,7 +79,6 @@ function createArmy(req, res, next) {
     if (checkReady(idRoom) === true) {
         global.ROOMS[idRoom].status = 3;
     }
-    console.log(JSON.stringify(global.ROOMS));
     res.send({
         idRoom: req.params.idRoom
     });

@@ -1,5 +1,5 @@
 function isFirstPlayer(idRoom, idPlayer) {
-    if (global.ROOMS[idRoom].players[0] === idPlayer) {
+    if (global.ROOMS[idRoom].firstPlayer === idPlayer) {
         return true;
     } else {
         return false;
@@ -13,7 +13,9 @@ function statusGame(req, res, next) {
     res.send({
         myArmy: global.ROOMS[idRoom][idPlayer].army,
         enemyArmy: global.ROOMS[idRoom][idEnemy].army,
-        turnPlayer: global.ROOMS[idRoom].turnPlayer
+        turnPlayer: global.ROOMS[idRoom].turnPlayer,
+        nbActions: global.ROOMS[idRoom].nbActions,
+        firstPlayer: global.ROOMS[idRoom].firstPlayer
     });
 }
 

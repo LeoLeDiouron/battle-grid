@@ -11,25 +11,41 @@ function findOtherPlayer(idRoom, idPlayer) {
     return (global.ROOMS[idRoom].players[0] === idPlayer) ? global.ROOMS[idRoom].players[1] : global.ROOMS[idRoom].players[0];
 }
 
-function move(req, res, next) {
-    const idPlayer = req.query.idPlayer;
-    const idRoom = req.params.idRoom;
-    const body = req.body;
+function setHasAttacked(idRoom, idPlayer, body) {
+    for (let i = 0; i < global.ROOMS[idRoom][idPlayer].army.length; i++) {
+        if (global.ROOMS[idRoom][idPlayer].army[i].idx === body.idx) {
+            global.ROOMS[idRoom][idPlayer].army[i].hasAttacked = true;
+        }
+    }
+}
+
+function dealDamages(idRoom, idPlayer, body) {
     const otherPlayer = findOtherPlayer(idRoom, idPlayer);
+
     for (let i = 0; i < global.ROOMS[idRoom][otherPlayer].army.length; i++) {
         if (global.ROOMS[idRoom][otherPlayer].army[i].idx === body.idxEnemy) {
-            global.ROOMS[idRoom][otherPlayer].army[i].hp -= findDmgUnit(global.ROOMS[idRoom][idPlayer].army, req.body.idx);
+            global.ROOMS[idRoom][otherPlayer].army[i].hp -= findDmgUnit(global.ROOMS[idRoom][idPlayer].army, body.idx);
             if (global.ROOMS[idRoom][otherPlayer].army[i].hp <= 0) {
-                global.ROOMS[idRoom][otherPlayer].army.splice(i, 1);
+                if (global.ROOMS[idRoom][otherPlayer].army[i].type !== "king") {
+                    global.ROOMS[idRoom][otherPlayer].army.splice(i, 1);
+                } else {
+                    global.ROOMS[idRoom].winner = idPlayer;
+                    global.ROOMS[idRoom].status = 4;
+                }
             }
         }
     }
-    for (let i = 0; i < global.ROOMS[idRoom][idPlayer].army.length; i++) {
-        if (global.ROOMS[idRoom][idPlayer].army[i].idx === req.body.idx) {
-            global.ROOMS[idRoom][idPlayer].army[i].hasMoved = true;
-        }
-    }
+}
+
+function attack(req, res, next) {
+    const idPlayer = req.query.idPlayer;
+    const idRoom = req.params.idRoom;
+    const body = req.body;
+    
+    dealDamages(idRoom, idPlayer, body);
+    setHasAttacked(idRoom, idPlayer, body);
+    global.ROOMS[idRoom].nbActions--;
     res.send({});
 }
 
-module.exports = move;
+module.exports = attack;

@@ -28,10 +28,12 @@
     let idPlayer = null;
     let idRoom = null;
     let statusRoom = 0;
+    let validateArmy = false;
     let menuItems = initMenuItems();
     let waitingItems = initWaitingItems();
     let selectionItems = initSelectionItems();
     let gameItems = initGameItems();
+    let winnerItems = initWinnerItems();
 
     // about selection scene
     let money = 100;
@@ -39,7 +41,6 @@
         peasant: 0,
         ninja: 0,
         knight: 0,
-        goldenKnight: 0,
         bowman: 0
     };
 
@@ -53,6 +54,7 @@
     let statusGame = null;
     let statusGameChanged = null;
     let myTurn = null;
+    const listUnits = ["peasant", "ninja", "knight", "bowman"];
     const selectionInfoUnit = {
         peasant: {
             description: "Pesant: just a random guy. (10 gold)",
@@ -67,7 +69,7 @@
             price: 40
         },
         goldenKnight: {
-            description: "Golden Knight: [need to find a description]. (80 gold)",
+            description: "Golden Knight: [need to find a description]. (70 gold)",
             price: 70
         },
         bowman: {
@@ -96,13 +98,15 @@
         game.load.image('peasant', 'assets/images/units/peasant.png');
         game.load.image('ninja', 'assets/images/units/ninja.png');
         game.load.image('knight', 'assets/images/units/knight.png');
-        game.load.image('goldenKnight', 'assets/images/units/golden_knight.png');
         game.load.image('bowman', 'assets/images/units/bowman.png');
         game.load.image('king', 'assets/images/units/king.png');
         // load images action
         game.load.image('attack', 'assets/images/round/attack.png');
         game.load.image('move', 'assets/images/round/move.png');
         game.load.image('range', 'assets/images/round/range.png');
+        game.load.image('blocked', 'assets/images/round/blocked.png');
+        game.load.image('enemyBorder', 'assets/images/round/enemy_border.png');
+        game.load.image('enemyRange', 'assets/images/round/enemy_range.png');
         // load font
         game.load.bitmapFont('font', 'assets/fonts/font.png', 'assets/fonts/font.xml');
     }
@@ -117,17 +121,20 @@
         if (idxFrame % 10 == 0) {
             responsive();
             if (idRoom !== null) {
-                if (statusRoom < 3) {
-                    tmpStatusRoom = sendRequest(baseUrl + "/status_room/" + idRoom, "GET").status;
-                    if (tmpStatusRoom === 2 && statusRoom === 1) { // two players are here, need to select army
-                        destroyWaiting();
-                        displaySelection();
-                    } else if (tmpStatusRoom === 3 && statusRoom === 2) { // two players choosed their army, start game
-                        destroySelection();
-                        displayGrid();
-                    }
-                    statusRoom = tmpStatusRoom;
-                } else {
+                tmpStatusRoom = sendRequest(baseUrl + "/status_room/" + idRoom, "GET");
+                if (tmpStatusRoom.status === 2 && statusRoom === 1) { // two players are here, need to select army
+                    destroyWaiting();
+                    displaySelection();
+                } else if (tmpStatusRoom.status === 3 && statusRoom === 2) { // two players choosed their army, start game
+                    destroySelection();
+                    displayGrid();
+                } else if (tmpStatusRoom.status === 4 && statusRoom === 3) { // one player win
+                    console.log(JSON.stringify(tmpStatusRoom));
+                    destroyGrid();
+                    displayWinner(tmpStatusRoom.winner);
+                }
+                statusRoom = tmpStatusRoom.status;
+                 if (statusRoom === 3) {
                     const tmpStatusGame = sendRequest(baseUrl + "/status_game/" + idRoom + "?idPlayer=" + idPlayer, "GET");
                     if (statusGameChanged === null || JSON.stringify(tmpStatusGame) !== JSON.stringify(statusGame)) {
                         statusGameChanged = true;
@@ -142,6 +149,15 @@
                     }
                     checkTurnOver();
                     displayArmies();
+                }
+            }
+        } else {
+            if (idRoom === null) {
+                for (let i = 0; i < menuItems.images.length; i++) {
+                    menuItems.images[i].x += 1;
+                    if (menuItems.images[i].x === windowWidth) {
+                        menuItems.images[i].x = 0;
+                    }
                 }
             }
         }
@@ -172,6 +188,15 @@
         menuItems.text["join"] = game.add.bitmapText(windowWidth / 2 + 50, windowHeight / 2 + 75, 'font', 'JOIN GAME', 30);
         menuItems.text["random"] = game.add.bitmapText(windowWidth / 2 + 50, windowHeight / 2 + 125, 'font', 'RANDOM GAME', 30);
         menuItems.text["errorMessage"] = game.add.bitmapText(windowWidth / 2 , windowHeight / 2 + 175, 'font', '', 30);
+        // add images
+        let x = 0;
+        for (const unit of listUnits) {
+            const spriteUnit = game.add.image(0, windowHeight / 2 - 60, unit);
+            spriteUnit.scale.setTo(0.15, 0.15)
+            spriteUnit.centerX = windowWidth / 2 + spriteUnit.width / 2 + x * (spriteUnit.width + 10);
+            menuItems.images.push(spriteUnit);
+            x++;
+        }
     }
 
     function destroyMenu() {
@@ -183,6 +208,9 @@
         for (const [textKey, textValue] of Object.entries(menuItems.text)) {
             menuItems.text[textKey].destroy();
         }
+        for (let i = 0; i < menuItems.images.length; i++) {
+            menuItems.images[i].destroy();
+        }
         menuItems = initMenuItems();
     }
 
@@ -191,7 +219,8 @@
             title: null,
             graphics: null,
             buttons: {},
-            text: {}
+            text: {},
+            images: []
         };
     }
 
@@ -253,7 +282,6 @@
         selectionItems.text['money'] = game.add.bitmapText(0, windowHeight / 2 - 200, 'font', `${money} gold`, 30);
         selectionItems.text['money'].centerX = windowWidth / 2;
         // add buttons selection
-        const listUnits = ["peasant", "ninja", "knight", "goldenKnight", "bowman"];
         let idx = 0 - listUnits.length / 2;
         for (const unit of listUnits) {
             selectionItems.buttons[unit] = game.add.button(windowWidth / 2 + (idx * 150), windowHeight / 2, unit, () => {displayUnitDetails(unit);});
@@ -308,7 +336,7 @@
     }
 
     function addUnit(unit) {
-        if (money >= selectionInfoUnit[unit].price) {
+        if (validateArmy === false && money >= selectionInfoUnit[unit].price) {
             army[unit]++;
             money -= selectionInfoUnit[unit].price;
             disaplayChange(unit);
@@ -316,7 +344,7 @@
     }
 
     function removeUnit(unit) {
-        if (army[unit] > 0) {
+        if (validateArmy === false && army[unit] > 0) {
             army[unit]--;
             money += selectionInfoUnit[unit].price;
             disaplayChange(unit);
@@ -332,6 +360,9 @@
     }
 
     function createArmy() {
+        validateArmy = true;
+        selectionItems.buttons['validate'].destroy();
+        delete selectionItems.buttons['validate'];
         const url = `${baseUrl}/create_army/${idRoom}?idPlayer=${idPlayer}`;
         sendRequest(url, "POST", JSON.stringify({
             army: army
@@ -358,7 +389,13 @@
             destroyArmies();
         }
         if ("move" in gameItems.buttons) {
-            destroyMoves();
+            destroyMoveButtons();
+        }
+        if ("blocked" in gameItems.buttons) {
+            destroyBlockedButtons();
+        }
+        if ("enemiesBorder" in gameItems.buttons) {
+            destroyEnemiesButtons();
         }
         for (const [textKey, textValue] of Object.entries(gameItems.text)) {
             gameItems.text[textKey].destroy();
@@ -372,9 +409,13 @@
         }
         if ("myArmy" in gameItems.buttons && "enemyArmy" in gameItems.buttons) {
             destroyArmies();
+            destroyBlockedButtons();
+            destroyEnemiesButtons();
         }
         gameItems.buttons["myArmy"] = {};
         gameItems.buttons["enemyArmy"] = {};
+        gameItems.buttons["blocked"] = [];
+        gameItems.buttons["enemiesBorder"] = [];
         for (const unit of statusGame.myArmy) {
             addUnitButton(unit, "myArmy", () => {event(unit)})
         }
@@ -384,9 +425,24 @@
     }
 
     function addUnitButton(unit, army, event) {
-        const unitButton = game.add.button(beginX + (unit.x * sizeCell), beginY  + (unit.y * sizeCell), unit.type, event);
+        const x = (idPlayer === statusGame.firstPlayer) ? beginX + (unit.x * sizeCell) : beginX + ((14 - unit.x) * sizeCell);
+        const y = (idPlayer === statusGame.firstPlayer) ?  beginY  + (unit.y * sizeCell) : beginY  + ((14 - unit.y) * sizeCell);
+        // add sprite unit
+        const unitButton = game.add.button(x, y, unit.type, event);
         unitButton.scale.setTo(0.15, 0.15);
         gameItems.buttons[army][unit.idx] = unitButton;
+        // add enemy border
+        if (army === "enemyArmy") {
+            const enemyBorder = game.add.button(x, y, "enemyBorder", event);
+            enemyBorder.scale.setTo(0.14, 0.14);
+            gameItems.buttons.enemiesBorder.push(enemyBorder);
+        }
+        // add blocked icon
+        if (unit.hasAttacked === true) {
+            const blockedButton = game.add.button(x, y, "blocked", event);
+            blockedButton.scale.setTo(0.15, 0.15);
+            gameItems.buttons.blocked.push(blockedButton);
+        }
     }
 
     function destroyArmies() {
@@ -398,7 +454,19 @@
         }
     }
 
-    function destroyMoves() {
+    function destroyBlockedButtons() {
+        for (let idx = 0; idx < gameItems.buttons.blocked.length; idx++) {
+            gameItems.buttons.blocked[idx].destroy();
+        }
+    }
+
+    function destroyEnemiesButtons() {
+        for (let idx = 0; idx < gameItems.buttons.enemiesBorder.length; idx++) {
+            gameItems.buttons.enemiesBorder[idx].destroy();
+        }
+    }
+
+    function destroyMoveButtons() {
         for (let idx = 0; idx < gameItems.buttons.move.length; idx++) {
             gameItems.buttons.move[idx].destroy();
         }
@@ -415,8 +483,8 @@
     function event(unit) {
         gameItems.text.statsLine.text = `Type: [${unit.type}] HP: [${unit.hp}/${unit.maxHp}] DMG: [${unit.dmg}]`;
         gameItems.text.statsLine.tint = 0xFFFFFF;
-        console.log(`->myTurn ${myTurn} ->hasMoved ${unit.hasMoved}`);
-        if (myTurn === true && unit.hasMoved === false) {
+        // console.log(`->myTurn ${myTurn} ->hasAttacked ${unit.hasAttacked}`);
+        if (myTurn === true && unit.hasAttacked === false) {
             manageMove(unit);
         }
     }
@@ -424,25 +492,30 @@
     function eventEnemy(unit) {
         gameItems.text.statsLine.text = `Type: [${unit.type}] HP: [${unit.hp}/${unit.maxHp}] DMG: [${unit.dmg}]`;
         gameItems.text.statsLine.tint = 0xFF0000;
+        if (myTurn === true) {
+            showRangeEnemy(unit);  
+        }
     }
 
-    function isOnAllie(offsetX, offsetY, currentUnit) {
+    function isOnAllie(offsetX, offsetY, currentUnit, inMyArmy) {
         for (const unit of statusGame.myArmy) {
-            if (unit.idx !== currentUnit.idx && unit.x === offsetX && unit.y === offsetY) {
+            if ((unit.idx !== currentUnit.idx || inMyArmy === false) && unit.x === offsetX && unit.y === offsetY) {
                 return true;
             }
         }
         return false;
     }
 
-    function haveToDisplayMove(offsetX, offsetY, unit) {
+    function haveToDisplayMove(offsetX, offsetY, unit, inMyArmy) {
         if (offsetX === unit.x && offsetY === unit.y) {
             return false;
         } else if (offsetX < 0 || offsetX >= sizeGrid) {
             return false;
         } else if (offsetY < 0 || offsetY >= sizeGrid) {
             return false;
-        } else if (isOnAllie(offsetX, offsetY, unit) === true) {
+        } else if (inMyArmy === true && isOnAllie(offsetX, offsetY, unit, inMyArmy) === true) {
+            return false;
+        } else if (inMyArmy === false && isOnEnemy(offsetX, offsetY) !== -1) {
             return false;
         } else {
             return true;
@@ -460,22 +533,24 @@
 
     function manageMove(unit) {
         if ("move" in gameItems.buttons) {
-            destroyMoves();
+            destroyMoveButtons();
         }
         gameItems.buttons["move"] = [];
         for (let offsetX = unit.x - (unit.move + unit.range); offsetX <= unit.x + (unit.move + unit.range); offsetX++) {
             for (let offsetY = unit.y - (unit.move + unit.range); offsetY <= unit.y + (unit.move + unit.range); offsetY++) {
-                const idxEnemy = isOnEnemy(offsetX, offsetY)
+                const idxEnemy = isOnEnemy(offsetX, offsetY);
+                const x = (idPlayer === statusGame.firstPlayer) ? beginX + (offsetX * sizeCell) : beginX + ((14 - offsetX) * sizeCell);
+                const y = (idPlayer === statusGame.firstPlayer) ?  beginY  + (offsetY * sizeCell) : beginY  + ((14 - offsetY) * sizeCell);
                 if (idxEnemy !== -1) {
-                    const buttonMove = game.add.button(beginX + (offsetX * sizeCell), beginY  + (offsetY * sizeCell), 'attack', () => {attackEnemy(unit, idxEnemy)});
+                    const buttonMove = game.add.button(x, y, 'attack', () => {attackEnemy(unit, idxEnemy)});
                     buttonMove.scale.setTo(0.1, 0.1);
                     gameItems.buttons["move"].push(buttonMove);
-                } else if (haveToDisplayMove(offsetX, offsetY, unit)) {
+                } else if (haveToDisplayMove(offsetX, offsetY, unit, true)) {
                     let buttonMove = null;
                     if ((offsetX >= unit.x - unit.move && offsetX <= unit.x + unit.move) && (offsetY >= unit.y - unit.move && offsetY <= unit.y + unit.move)) {
-                        buttonMove = game.add.button(beginX + (offsetX * sizeCell), beginY  + (offsetY * sizeCell), 'move', () => {moveUnit(unit, offsetX, offsetY)});
+                        buttonMove = game.add.button(x, y, 'move', () => {moveUnit(unit, offsetX, offsetY)});
                     } else {
-                        buttonMove = game.add.button(beginX + (offsetX * sizeCell), beginY  + (offsetY * sizeCell), 'range', () => {});
+                        buttonMove = game.add.button(x, y, 'range', () => {});
                     }
                     buttonMove.scale.setTo(0.15, 0.15);
                     gameItems.buttons["move"].push(buttonMove);
@@ -484,8 +559,28 @@
         }   
     }
 
+    function showRangeEnemy(unit) {
+        if ("move" in gameItems.buttons) {
+            destroyMoveButtons();
+        }
+        gameItems.buttons["move"] = [];
+        for (let offsetX = unit.x - (unit.move + unit.range); offsetX <= unit.x + (unit.move + unit.range); offsetX++) {
+            for (let offsetY = unit.y - (unit.move + unit.range); offsetY <= unit.y + (unit.move + unit.range); offsetY++) {
+                const onAllie = isOnAllie(offsetX, offsetY, unit, false);
+                const canMove = haveToDisplayMove(offsetX, offsetY, unit, false);
+                if (onAllie === false && canMove === true) {
+                    const x = (idPlayer === statusGame.firstPlayer) ? beginX + (offsetX * sizeCell) : beginX + ((14 - offsetX) * sizeCell);
+                    const y = (idPlayer === statusGame.firstPlayer) ?  beginY  + (offsetY * sizeCell) : beginY  + ((14 - offsetY) * sizeCell);
+                    const buttonMove = game.add.button(x, y, 'enemyRange', () => {});
+                    buttonMove.scale.setTo(0.15, 0.15);
+                    gameItems.buttons["move"].push(buttonMove);
+                }
+            }
+        }   
+    }
+
     function attackEnemy(unit, idxEnemy) {
-        destroyMoves();
+        destroyMoveButtons();
         const url = `${baseUrl}/attack/${idRoom}?idPlayer=${idPlayer}`;
         const body = {
             idx: unit.idx,
@@ -495,7 +590,7 @@
     }
 
     function moveUnit(unit, offsetX, offsetY) {
-        destroyMoves();
+        destroyMoveButtons();
         const url = `${baseUrl}/move/${idRoom}?idPlayer=${idPlayer}`;
         const body = {
             idx: unit.idx,
@@ -507,22 +602,41 @@
 
     function checkTurnOver() {
         if (myTurn === true) {
-            let turnOver = true;
-            for (let i = 0; i < statusGame.myArmy.length; i++) {
-                if (statusGame.myArmy[i].hasMoved === false) {
-                    turnOver = false;
-                    break;
-                }
-            }
-            if (turnOver === true) {
+            if (statusGame.nbActions <= 0) {
                 const url = `${baseUrl}/turn_over/${idRoom}?idPlayer=${idPlayer}`;
                 sendRequest(url, "GET");
-                gameItems.text["turn"].text = "Enemy's turn";
+                gameItems.text["turn"].text = `Enemy's turn - ${statusGame.nbActions}/3`;
             } else {
-                gameItems.text["turn"].text = "Your turn";
+                gameItems.text["turn"].text = `Your turn - ${statusGame.nbActions}/3`;
             }
         } else {
-            gameItems.text["turn"].text = "Enemy's turn";
+            gameItems.text["turn"].text = `Enemy's turn - ${statusGame.nbActions}/3`;
+        }
+    }
+
+    /* _________________________________ SCENE 4 - WINNER _________________________________ */
+
+    function displayWinner(idWinner) {
+        winnerItems.title = game.add.bitmapText(0, 0, 'font', '', 40);
+        winnerItems.icon = game.add.image(0, 0, "king");
+        if (idWinner === idPlayer) {
+            winnerItems.title.text = "YOU WIN !";
+            winnerItems.icon.scale.setTo(0.5, 0.5);
+        } else {
+            winnerItems.title.text = "YOU LOSE";
+            winnerItems.icon.scale.setTo(0.5, -0.5);
+        }
+        console.log(winnerItems.icon.height)
+        winnerItems.title.centerX = windowWidth / 2;
+        winnerItems.title.centerY = windowHeight / 2;
+        winnerItems.icon.centerX = windowWidth / 2;
+        winnerItems.icon.centerY = windowHeight / 2 - winnerItems.icon.height;
+    }
+
+    function initWinnerItems() {
+        return {
+            title: null,
+            icon: null
         }
     }
 
@@ -569,6 +683,9 @@
         return JSON.parse(req.response);
     }
 
+    function random(max) {
+        return Math.floor(Math.random() * Math.floor(max));
+    }
     
     function sleep(ms) {
         return new Promise(resolve => setTimeout(resolve, ms));
