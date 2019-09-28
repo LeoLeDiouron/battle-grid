@@ -2,16 +2,16 @@ const express = require('express');
 const router = express.Router();
 
 // controllers
-const generateIdPlayer = require("./controllers/generateIdPlayer");
-const createRoom = require("./controllers/createRoom");
-const joinRoom = require("./controllers/joinRoom");
-const randomRoom = require("./controllers/randomRoom");
-const waitRoom = require("./controllers/statusRoom");
-const createArmy = require("./controllers/createArmy");
-const statusGame = require("./controllers/statusGame");
-const move = require("./controllers/move");
-const attack = require("./controllers/attack");
-const turnOver = require("./controllers/turnOver");
+const generateIdPlayer = require("./controllers/room/generateIdPlayer");
+const createRoom = require("./controllers/room/createRoom");
+const joinRoom = require("./controllers/room/joinRoom");
+const randomRoom = require("./controllers/room/randomRoom");
+const waitRoom = require("./controllers/room/statusRoom");
+const createArmy = require("./controllers/room/createArmy");
+const statusGame = require("./controllers/game/statusGame");
+const move = require("./controllers/game/move");
+const attack = require("./controllers/game/attack");
+const turnOver = require("./controllers/game/turnOver");
 
 // instanciate global rooms
 global.ROOMS = {};

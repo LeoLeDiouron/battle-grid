@@ -2,11 +2,12 @@ const statsAllUnit = {
     peasant: createUnitType("peasant", 10, 4, 2, 0),
     ninja: createUnitType("ninja", 10, 6, 3, 0),
     knight: createUnitType("knight", 25, 8, 2, 0),
-    bowman: createUnitType("bowman", 8, 5, 1, 5),
-    king: createUnitType("king", 12, 6, 1, 1),
+    goldenKnight: createUnitType("goldenKnight", 40, 10, 2, 1),
+    bowman: createUnitType("bowman", 8, 5, 1, 4),
+    king: createUnitType("king", 12, 6, 1, 0),
 };
 
-const listUnits = ["peasant", "ninja", "knight", "bowman"];
+const listUnits = ["peasant", "ninja", "knight", "goldenKnight", "bowman"];
 
 function createUnitType(type, hp, dmg, move, range) {
     return {
