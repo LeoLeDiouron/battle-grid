@@ -9,14 +9,20 @@ function isFirstPlayer(idRoom, idPlayer) {
 function statusGame(req, res, next) {
     const idPlayer = req.query.idPlayer;
     const idRoom = req.params.idRoom;
-    const idEnemy = (isFirstPlayer(idRoom, idPlayer) === true) ? global.ROOMS[idRoom].players[1] : global.ROOMS[idRoom].players[0];
-    res.send({
-        myArmy: global.ROOMS[idRoom][idPlayer].army,
-        enemyArmy: global.ROOMS[idRoom][idEnemy].army,
-        turnPlayer: global.ROOMS[idRoom].turnPlayer,
-        nbActions: global.ROOMS[idRoom].nbActions,
-        firstPlayer: global.ROOMS[idRoom].firstPlayer
-    });
+
+    if (idRoom in global.ROOMS && idPlayer in global.ROOMS[idRoom]) {
+        const idEnemy = (isFirstPlayer(idRoom, idPlayer) === true) ? global.ROOMS[idRoom].players[1] : global.ROOMS[idRoom].players[0];
+        res.send({
+            myArmy: global.ROOMS[idRoom][idPlayer].army,
+            enemyArmy: global.ROOMS[idRoom][idEnemy].army,
+            turnPlayer: global.ROOMS[idRoom].turnPlayer,
+            nbActions: global.ROOMS[idRoom].nbActions,
+            firstPlayer: global.ROOMS[idRoom].firstPlayer,
+            obstacles: global.ROOMS[idRoom].obstacles
+        });
+    } else {
+        res.send({});
+    }
 }
 
 module.exports = statusGame;

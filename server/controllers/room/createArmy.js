@@ -1,13 +1,14 @@
 const statsAllUnit = {
     peasant: createUnitType("peasant", 10, 4, 2, 0),
-    ninja: createUnitType("ninja", 10, 6, 3, 0),
+    ninja: createUnitType("ninja", 10, 4, 3, 0),
     knight: createUnitType("knight", 25, 8, 2, 0),
     goldenKnight: createUnitType("goldenKnight", 40, 10, 2, 1),
     bowman: createUnitType("bowman", 8, 5, 1, 4),
-    king: createUnitType("king", 1, 6, 1, 0),
+    king: createUnitType("king", 10, 5, 1, 0),
+    doctor: createUnitType("doctor", 8, 2, 2, 0),
 };
 
-const listUnits = ["peasant", "ninja", "knight", "goldenKnight", "bowman"];
+const listUnits = ["peasant", "ninja", "knight", "goldenKnight", "bowman", "doctor"];
 
 function createUnitType(type, hp, dmg, move, range) {
     return {
@@ -32,20 +33,30 @@ function generateJsonArmy(nbUnits, idRoom, idPlayer) {
     const firstPlayer = isFirstPlayer(idRoom, idPlayer)
     const army = [];
     let idxUnit = 0;
-    let x = 1;
-    let y = (firstPlayer === true) ? 12 : 2;
+    let y = (firstPlayer === true) ? 13 : 1;
+    let offset = 1;
+    let nbLines = 0;
+
     for (const unit of listUnits) {
         for (let idx = 0; idx < nbUnits[unit]; idx++) {
             const newUnit = copyJson(statsAllUnit[unit]);
-            newUnit["x"] = x;
+            newUnit["x"] = 7 + offset;
             newUnit["y"] = y;
             newUnit["idx"] = idxUnit;
             newUnit["hasAttacked"] = false;
             army.push(newUnit);
-            x += 2;
-            if (x > 14) {
-                x = 2;
-                y = (isFirstPlayer(idRoom, idPlayer) === true) ? y + 1 : y - 1;
+            offset *= -1;
+            if (idxUnit % 2 === 1) {
+                offset += 2;
+            }
+            if (offset >= 8 || offset <= -8) {
+                if (nbLines % 2 === 0) {
+                    offset = 0;
+                } else {
+                    offset = 1;
+                }
+                y += (firstPlayer === true) ? -1 : 1;
+                nbLines++;
             }
             idxUnit++;
         }

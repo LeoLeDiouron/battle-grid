@@ -42,9 +42,11 @@ function attack(req, res, next) {
     const idRoom = req.params.idRoom;
     const body = req.body;
     
-    dealDamages(idRoom, idPlayer, body);
-    setHasAttacked(idRoom, idPlayer, body);
-    global.ROOMS[idRoom].nbActions--;
+    if (idRoom in global.ROOMS && idPlayer in global.ROOMS[idRoom]) {
+        dealDamages(idRoom, idPlayer, body);
+        setHasAttacked(idRoom, idPlayer, body);
+        global.ROOMS[idRoom].nbActions--;
+    }
     res.send({});
 }
 
