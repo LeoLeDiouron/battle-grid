@@ -80,7 +80,8 @@
     }
 
     // about api
-    //const baseUrl = "http://localhost:8080/api";
+    // const baseUrl = "http://localhost:8080/api";
+    
     const baseUrl = "http://192.168.0.25:8080/api";
     // const baseUrl = 'http://92.88.243.15:8080/api'
 
@@ -109,12 +110,15 @@
         game.load.image('blocked', 'assets/images/round/blocked.png');
         game.load.image('enemyBorder', 'assets/images/round/enemy_border.png');
         game.load.image('enemyRange', 'assets/images/round/enemy_range.png');
-        game.load.image('obstacle', 'assets/images/round/obstacle.png');
-        game.load.image('ground1', 'assets/images/round/ground1.png');
-        game.load.image('ground2', 'assets/images/round/ground2.png');
-        game.load.image('ground3', 'assets/images/round/ground3.png');
-        game.load.image('ground4', 'assets/images/round/ground4.png');
-        game.load.image('ground5', 'assets/images/round/ground5.png');
+        // load background
+        game.load.image('fog', 'assets/images/round/fog.png');
+        game.load.image('damaged', 'assets/images/round/damaged.png');
+        game.load.image('obstacle', 'assets/images/round/areas/desert/obstacle.png');
+        game.load.image('ground1', 'assets/images/round/areas/desert/ground1.png');
+        game.load.image('ground2', 'assets/images/round/areas/desert/ground2.png');
+        game.load.image('ground3', 'assets/images/round/areas/desert/ground3.png');
+        game.load.image('ground4', 'assets/images/round/areas/desert/ground4.png');
+        game.load.image('ground5', 'assets/images/round/areas/desert/ground5.png');
         // load font
         game.load.bitmapFont('font', 'assets/fonts/font.png', 'assets/fonts/font.xml');
     }
@@ -299,13 +303,13 @@
             selectionItems.buttons[unit].scale.setTo(0.5, 0.5);
             // button more
             selectionItems.buttons[unit + "_more"] = game.add.button(0, 0, "more", () => {addUnit(unit);});
-            selectionItems.buttons[unit + "_more"].scale.setTo(0.2, 0.2);
+            selectionItems.buttons[unit + "_more"].scale.setTo(0.15, 0.15);
             // console.log(selectionItems.buttons[unit].centerX);
             selectionItems.buttons[unit + "_more"].centerX = selectionItems.buttons[unit].centerX;
             selectionItems.buttons[unit + "_more"].centerY = selectionItems.buttons[unit].centerY - selectionItems.buttons[unit].height / 2 - selectionItems.buttons[unit + "_more"].height / 2 - 10;
             // button less
             selectionItems.buttons[unit + "_less"] = game.add.button(0, 0, "less", () => {removeUnit(unit);});
-            selectionItems.buttons[unit + "_less"].scale.setTo(0.2, 0.2);
+            selectionItems.buttons[unit + "_less"].scale.setTo(0.15, 0.15);
             selectionItems.buttons[unit + "_less"].centerX = selectionItems.buttons[unit].centerX;
             selectionItems.buttons[unit + "_less"].centerY = selectionItems.buttons[unit].centerY + selectionItems.buttons[unit].height / 2 + selectionItems.buttons[unit + "_less"].height / 2 + 10;
             // number of units
@@ -404,6 +408,7 @@
             imgObstacle.scale.setTo(0.17, 0.17);
             gameItems.images.obstacles.push(imgObstacle);
         }
+        gameItems.images["fog"] = [];
     }
 
     function destroyGrid() {
@@ -426,6 +431,9 @@
         if ("ground" in gameItems.images) {
             destroyGround();
         }
+        if ("damaged" in gameItems.buttons) {
+            destroyDamagedButtons();
+        }
         for (const [textKey, textValue] of Object.entries(gameItems.text)) {
             gameItems.text[textKey].destroy();
         }
@@ -440,20 +448,26 @@
             destroyArmies();
             destroyBlockedButtons();
             destroyEnemiesButtons();
+            destroyDamagedButtons();
         }
         gameItems.buttons["myArmy"] = {};
         gameItems.buttons["enemyArmy"] = {};
         gameItems.buttons["blocked"] = [];
         gameItems.buttons["enemiesBorder"] = [];
+        gameItems.buttons["damaged"] = [];
         for (const unit of statusGame.myArmy) {
             addUnitButton(unit, "myArmy", () => {event(unit)})
         }
         for (const unit of statusGame.enemyArmy) {
             addUnitButton(unit, "enemyArmy", () => {eventEnemy(unit)})
         }
+        applyFog();
     }
 
     function addUnitButton(unit, army, event) {
+        if (inVisionOfArmy(unit.x, unit.y) === false) {
+            return;
+        }
         const x = (idPlayer === statusGame.firstPlayer) ? beginX + (unit.x * sizeCell) : beginX + ((14 - unit.x) * sizeCell);
         const y = (idPlayer === statusGame.firstPlayer) ?  beginY  + (unit.y * sizeCell) : beginY  + ((14 - unit.y) * sizeCell);
         // add sprite unit
@@ -463,7 +477,7 @@
         // add enemy border
         if (army === "enemyArmy") {
             const enemyBorder = game.add.button(x, y, "enemyBorder", event);
-            enemyBorder.scale.setTo(0.17, 0.17);
+            enemyBorder.scale.setTo(0.15, 0.15);
             gameItems.buttons.enemiesBorder.push(enemyBorder);
         }
         // add blocked icon
@@ -471,6 +485,41 @@
             const blockedButton = game.add.button(x, y, "blocked", event);
             blockedButton.scale.setTo(0.17, 0.17);
             gameItems.buttons.blocked.push(blockedButton);
+        }
+        // add damaged effect
+        if (unit.hp < unit.maxHp / 3) {
+            const damagedButton = game.add.button(x, y, "damaged", event);
+            damagedButton.scale.setTo(0.17, 0.17);
+            damagedButton.alpha = 0.3;
+            gameItems.buttons.damaged.push(damagedButton);
+        }
+    }
+
+    function inVisionOfArmy(x, y) {
+        for (const unit of statusGame.myArmy) {
+            if (x <= unit.x + (unit.move * 1.5 + unit.range) && x >= unit.x - (unit.move * 1.5 + unit.range) &&
+                y <= unit.y + (unit.move * 1.5 + unit.range) && y >= unit.y - (unit.move * 1.5 + unit.range)) {
+                    return true;
+            }
+        }
+        return false;
+    }
+
+    function applyFog() {
+        if ("fog" in gameItems.images) {
+            destroyFog();
+        }
+        for (let x = 0; x < sizeGrid; x++) {
+            for (let y = 0; y < sizeGrid; y++) {
+                if (inVisionOfArmy(x, y) === false) {
+                    const fogX = (idPlayer === statusGame.firstPlayer) ? beginX + (x * sizeCell) : beginX + ((14 - x) * sizeCell);
+                    const fogY = (idPlayer === statusGame.firstPlayer) ? beginY + (y * sizeCell) : beginY + ((14 - y) * sizeCell);
+                    const imgFog = game.add.image(fogX, fogY, "fog");
+                    imgFog.scale.setTo(0.17, 0.17);
+                    imgFog.alpha = 0.7;
+                    gameItems.images.fog.push(imgFog);
+                }
+            }
         }
     }
 
@@ -495,6 +544,12 @@
         }
     }
 
+    function destroyDamagedButtons() {
+        for (let idx = 0; idx < gameItems.buttons.damaged.length; idx++) {
+            gameItems.buttons.damaged[idx].destroy();
+        }
+    }
+
     function destroyMoveButtons() {
         for (let idx = 0; idx < gameItems.buttons.move.length; idx++) {
             gameItems.buttons.move[idx].destroy();
@@ -504,6 +559,12 @@
     function destroyObstacles() {
         for (let idx = 0; idx < gameItems.images.obstacles.length; idx++) {
             gameItems.images.obstacles[idx].destroy();
+        }
+    }
+
+    function destroyFog() {
+        for (let idx = 0; idx < gameItems.images.fog.length; idx++) {
+            gameItems.images.fog[idx].destroy();
         }
     }
 
@@ -653,9 +714,18 @@
         sendRequest(url, "POST", JSON.stringify(body));
     }
 
+    function everyUnitHasAttacked() {
+        for (const unit of statusGame.myArmy) {
+            if (unit.hasAttacked === false) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     function checkTurnOver() {
         if (myTurn === true) {
-            if (statusGame.nbActions <= 0) {
+            if (statusGame.nbActions <= 0 || everyUnitHasAttacked() === true) {
                 const url = `${baseUrl}/turn_over/${idRoom}?idPlayer=${idPlayer}`;
                 sendRequest(url, "GET");
                 gameItems.text["turn"].text = `Enemy's turn - ${statusGame.nbActions}/4`;
