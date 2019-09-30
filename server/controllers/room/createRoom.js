@@ -18,23 +18,24 @@ function createObstacles() {
 }
 
 function createRoom(req, res, next) {
+    const idPlayer = req.query.idPlayer;
     let idRoom = "";
+
     for (let i = 0; i < 4; i++) {
-        const rnd = Math.round(Math.random() * alphaNum.length - 1);
+        const rnd = randomNumber(alphaNum.length - 1);
         idRoom += alphaNum.charAt(rnd);
     }
     global.ROOMS[idRoom] = {
         status: 1,
-        turnPlayer: null,
+        turnPlayer: idPlayer,
         nbActions: 4,
         winner: null,
-        firstPlayer: req.query.idPlayer,
+        firstPlayer: idPlayer,
         players: [],
         obstacles: createObstacles()
     };
-    global.ROOMS[idRoom][req.query.idPlayer] = {};
-    global.ROOMS[idRoom].players.push(req.query.idPlayer);
-    global.ROOMS[idRoom].turnPlayer = req.query.idPlayer;
+    global.ROOMS[idRoom][idPlayer] = {};
+    global.ROOMS[idRoom].players.push(idPlayer);
     res.send({idRoom});
 }
 

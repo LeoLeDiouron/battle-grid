@@ -7,6 +7,7 @@ const createRoom = require("./controllers/room/createRoom");
 const joinRoom = require("./controllers/room/joinRoom");
 const randomRoom = require("./controllers/room/randomRoom");
 const waitRoom = require("./controllers/room/statusRoom");
+const reInitRoom = require("./controllers/room/reInitRoom");
 const createArmy = require("./controllers/room/createArmy");
 const statusGame = require("./controllers/game/statusGame");
 const move = require("./controllers/game/move");
@@ -25,6 +26,7 @@ router.get("/random_room", randomRoom);
 router.get("/status_room/:idRoom", waitRoom);
 router.get("/status_game/:idRoom", statusGame);
 router.get("/turn_over/:idRoom", turnOver);
+router.get("/reinit_room/:idRoom", reInitRoom);
 // post
 router.post("/create_army/:idRoom", createArmy);
 router.post("/move/:idRoom", move);

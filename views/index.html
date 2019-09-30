@@ -38,14 +38,8 @@
     let winnerItems = initWinnerItems();
 
     // about selection scene
-    let money = 150;
-    const army = {
-        peasant: 0,
-        ninja: 0,
-        knight: 0,
-        bowman: 0,
-        doctor: 0,
-    };
+    let money = null;
+    let army = null;
 
     // about graphics (in round)
     const sizeGrid = 15;
@@ -286,10 +280,12 @@
     }
 
     function destroyWaiting() {
-        waitingItems.graphics.destroy();
-        waitingItems.title.destroy();
-        waitingItems.room.destroy();
-        waitingItems = initWaitingItems();
+        if (waitingItems.title !== null) {
+            waitingItems.graphics.destroy();
+            waitingItems.title.destroy();
+            waitingItems.room.destroy();
+            waitingItems = initWaitingItems();
+        }
     }
 
     function initWaitingItems() {
@@ -343,7 +339,7 @@
         joinItems.buttonValidation.destroy();
         joinItems.backButton.destroy();
         joinItems.errorMessage.destroy();
-        joinItems = initWaitingItems();
+        joinItems = initJoinItems();
     }
 
     function backToMenuFromJoin() {
@@ -366,6 +362,8 @@
     /* _________________________________ SCENE 2 - SELECTION _________________________________ */
 
     function displaySelection() {
+        money = 150;
+        army = initalizeArmy();
         // add title
         selectionItems.title = game.add.bitmapText(0, windowHeight / 2 - 300, 'font', 'SELECT YOUR UNITS', 40);
         selectionItems.title.centerX = windowWidth / 2;
@@ -401,6 +399,16 @@
         selectionItems.buttons['validate'] = game.add.button(0, windowHeight - 100, "validate", () => {createArmy()});
         selectionItems.buttons['validate'].scale.setTo(0.2, 0.2);
         selectionItems.buttons['validate'].centerX = windowWidth / 2;
+    }
+
+    function initalizeArmy() {
+        return {
+            peasant: 0,
+            ninja: 0,
+            knight: 0,
+            bowman: 0,
+            doctor: 0,
+        };
     }
 
     function destroySelection() {
@@ -816,6 +824,7 @@
     /* _________________________________ SCENE 4 - WINNER _________________________________ */
 
     function displayWinner(idWinner) {
+        // add title and icon
         winnerItems.title = game.add.bitmapText(0, 0, 'font', '', 40);
         winnerItems.icon = game.add.image(0, 0, "king");
         if (idWinner === idPlayer) {
@@ -825,17 +834,58 @@
             winnerItems.title.text = "YOU LOSE";
             winnerItems.icon.scale.setTo(0.5, -0.5);
         }
-        console.log(winnerItems.icon.height)
         winnerItems.title.centerX = windowWidth / 2;
         winnerItems.title.centerY = windowHeight / 2;
         winnerItems.icon.centerX = windowWidth / 2;
         winnerItems.icon.centerY = windowHeight / 2 - winnerItems.icon.height;
+        // add button back
+        winnerItems.buttonBack = game.add.button(0, 0, "back", () => {backToMenuFromEnd();});
+        winnerItems.buttonBack.scale.setTo(0.17, 0.17);
+        winnerItems.buttonBack.centerX = windowWidth / 2 - winnerItems.title.width;
+        winnerItems.buttonBack.centerY = windowHeight / 2;
+        // add button retry
+        winnerItems.buttonRetry = game.add.button(0, 0, "retry", () => {retry();});
+        winnerItems.buttonRetry.scale.setTo(0.17, 0.17);
+        winnerItems.buttonRetry.centerX = windowWidth / 2 + winnerItems.title.width;
+        winnerItems.buttonRetry.centerY = windowHeight / 2;
+    }
+
+    function reInit(newIdRoom, newStatusRoom) {
+        idRoom = newIdRoom;
+        statusRoom = 0;
+        statusGame = null;
+        statusGameChanged = null;
+        myTurn = null;
+        validateArmy = false;
+    }
+
+    function backToMenuFromEnd() {
+        reInit(null);
+        destroyWinnerMenu();
+        displayMenu();
+    }
+
+    function retry() {
+        reInit(idRoom);
+        destroyWinnerMenu();
+        sendRequest(`${baseUrl}/reinit_room/${idRoom}?idPlayer=${idPlayer}`, "GET");
+        displaySelection();
+    }
+
+    function destroyWinnerMenu() {
+        winnerItems.title.destroy();
+        winnerItems.icon.destroy();
+        winnerItems.buttonRetry.destroy();
+        winnerItems.buttonBack.destroy();
+        winnerItems = initWinnerItems();
     }
 
     function initWinnerItems() {
         return {
             title: null,
-            icon: null
+            icon: null,
+            buttonRetry: null,
+            buttonBack: null
         }
     }
 
