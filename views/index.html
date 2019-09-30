@@ -4,6 +4,7 @@
     <meta charset="UTF-8" />
     <title>BattleGrid</title>
     <script src="./phaser.min.js"></script>
+    <script src="./phaser-input.js"></script>
     <style type="text/css">
         body {
             margin: 0;
@@ -31,6 +32,7 @@
     let validateArmy = false;
     let menuItems = initMenuItems();
     let waitingItems = initWaitingItems();
+    let joinItems = initJoinItems();
     let selectionItems = initSelectionItems();
     let gameItems = initGameItems();
     let winnerItems = initWinnerItems();
@@ -80,19 +82,23 @@
     }
 
     // about api
-    // const baseUrl = "http://localhost:8080/api";
+    const baseUrl = "http://localhost:8080/api";
     
-    const baseUrl = "http://192.168.0.25:8080/api";
+    // const baseUrl = "http://192.168.0.25:8080/api";
     // const baseUrl = 'http://92.88.243.15:8080/api'
 
     /*  _________________________________ PHASER FUNCTIONS _________________________________ */
 
     function preload() {
-        // load menu button
+        // plugin for input
+        game.add.plugin(PhaserInput.Plugin);
+        // load menu buttons
         game.load.image('new', 'assets/images/menu/new.png');
         game.load.image('join', 'assets/images/menu/join.png');
         game.load.image('random', 'assets/images/menu/random.png');
-        // load selection button
+        // load join buttons
+        game.load.image('back', 'assets/images/menu/back.png');
+        // load selection buttons
         game.load.image('validate', 'assets/images/selection/validate.png');
         game.load.image('more', 'assets/images/selection/more.png');
         game.load.image('less', 'assets/images/selection/less.png');
@@ -119,6 +125,8 @@
         game.load.image('ground3', 'assets/images/round/areas/desert/ground3.png');
         game.load.image('ground4', 'assets/images/round/areas/desert/ground4.png');
         game.load.image('ground5', 'assets/images/round/areas/desert/ground5.png');
+        // load end buttons
+        game.load.image('retry', 'assets/images/menu/retry.png');
         // load font
         game.load.bitmapFont('font', 'assets/fonts/font.png', 'assets/fonts/font.xml');
     }
@@ -194,7 +202,7 @@
         // add menu buttons
         menuItems.buttons["new"] = game.add.button(windowWidth / 2, windowHeight / 2 + 25, "new", () => {createRoom();});
         menuItems.buttons["new"].scale.setTo(0.1, 0.1);
-        menuItems.buttons["join"] = game.add.button(windowWidth / 2, windowHeight / 2 + 75, "join", () => {console.log("join")});
+        menuItems.buttons["join"] = game.add.button(windowWidth / 2, windowHeight / 2 + 75, "join", () => {joinRoom();});
         menuItems.buttons["join"].scale.setTo(0.1, 0.1);
         menuItems.buttons["random"] = game.add.button(windowWidth / 2, windowHeight / 2 + 125, "random", () => {randomRoom();});
         menuItems.buttons["random"].scale.setTo(0.1, 0.1);
@@ -245,6 +253,11 @@
         displayWaiting();
     }
 
+    function joinRoom() {
+        destroyMenu();
+        displayJoin();
+    }
+
     function randomRoom() {
         idRoom = sendRequest(baseUrl + "/random_room?idPlayer=" + idPlayer, "GET").idRoom;
         if (idRoom !== null) {
@@ -283,6 +296,69 @@
         return {
             title: null,
             graphics: null,
+            room: null
+        };
+    }
+
+    /* _________________________________ SCENE 1.1 - JOIN _________________________________ */
+
+    function displayJoin() {
+        // add line
+        const line = new Phaser.Line(0, windowHeight / 2, windowWidth, 0);
+        joinItems.graphics = game.add.graphics(line.start.x,line.start.y);
+        joinItems.graphics.lineStyle(3, 0xFFFFFF, 1);
+        joinItems.graphics.lineTo(line.end.x,line.end.y);
+        joinItems.graphics.endFill();
+        // add title
+        joinItems.title = game.add.bitmapText(0, windowHeight / 2 - 60, 'font', 'JOIN A GAME', 40);
+        joinItems.title.x = windowWidth / 2 - joinItems.title.width - 10;
+        // add input
+        joinItems.input = game.add.inputField(windowWidth / 2, windowHeight / 2 + 25, { width: 150, padding: 8 });
+        // add button validation
+        joinItems.buttonValidation = game.add.button(windowWidth / 2, windowHeight / 2 + 75, "validate", () => {joinARoom(joinItems.input.value)});
+        joinItems.buttonValidation.scale.setTo(0.12, 0.12);
+        // add error message
+        joinItems.errorMessage = game.add.bitmapText(windowWidth / 2, windowHeight / 2 + 125, "font", "", 30);
+        // add back button
+        joinItems.backButton = game.add.button(10, 10, "back", () => {backToMenuFromJoin()});
+        joinItems.backButton.scale.setTo(0.17, 0.17);
+    }
+
+    function joinARoom(codeRoom) {
+        const response = sendRequest(baseUrl + "/join_room/" + codeRoom + "?idPlayer=" + idPlayer, "GET", null);
+        if (response.status === 0) {
+            idRoom = codeRoom;
+            destroyJoin();
+            displaySelection();
+        } else {
+            joinItems.errorMessage.tint = 0xFFFFFF;
+            joinItems.errorMessage.text = response.errorMessage;
+        }
+    }
+
+    function destroyJoin() {
+        joinItems.graphics.destroy();
+        joinItems.title.destroy();
+        joinItems.input.destroy();
+        joinItems.buttonValidation.destroy();
+        joinItems.backButton.destroy();
+        joinItems.errorMessage.destroy();
+        joinItems = initWaitingItems();
+    }
+
+    function backToMenuFromJoin() {
+        destroyJoin();
+        displayMenu();
+    }
+
+    function initJoinItems() {
+        return {
+            title: null,
+            graphics: null,
+            input: null,
+            buttonValidation: null,
+            backButton: null,
+            errorMessage: null,
             room: null
         };
     }
@@ -802,7 +878,6 @@
             req.setRequestHeader("content-type", "application/json");
         }
         req.send(body);
-
         return JSON.parse(req.response);
     }
 

@@ -35,7 +35,6 @@ function createRoom(req, res, next) {
     global.ROOMS[idRoom][req.query.idPlayer] = {};
     global.ROOMS[idRoom].players.push(req.query.idPlayer);
     global.ROOMS[idRoom].turnPlayer = req.query.idPlayer;
-    // console.log(JSON.stringify(global.ROOMS));
     res.send({idRoom});
 }
 

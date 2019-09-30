@@ -1,10 +1,25 @@
 function joinRoom(req, res, next) {
-    global.ROOMS[req.params.idRoom].status = 2;
-    global.ROOMS[req.params.idRoom][req.query.idPlayer] = {};
-    global.ROOMS[idRoom].players.push(req.query.idPlayer);
-    console.log(JSON.stringify(global.ROOMS));
+    const idRoom = req.params.idRoom;
+    const idPlayer = req.query.idPlayer;
+    let status = 0;
+    let errorMessage = '';
+
+    if (idRoom in global.ROOMS) {
+        if (global.ROOMS[idRoom].players.length === 1) {
+            global.ROOMS[req.params.idRoom].status = 2;
+            global.ROOMS[req.params.idRoom][idPlayer] = {};
+            global.ROOMS[idRoom].players.push(idPlayer);
+        } else {
+            status = -1;
+            errorMessage = `This game is already full.`;
+        }
+    } else {
+        status = -1;
+        errorMessage = `The game with code '${idRoom}' doesn't exist.`
+    }
     res.send({
-        idRoom: req.params.idRoom
+        status: status,
+        errorMessage: errorMessage
     });
 }
 
