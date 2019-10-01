@@ -1,6 +1,6 @@
-<!doctype html> 
-<html lang="en"> 
-<head> 
+<!doctype html>
+<html lang="en">
+<head>
     <meta charset="UTF-8" />
     <title>BattleGrid</title>
     <script src="./phaser.min.js"></script>
@@ -62,24 +62,21 @@
             price: 20
         },
         knight: {
-            description: "Knight: really heavy baby. (30 gold)",
-            price: 30
+            description: "Knight: really heavy baby. (40 gold)",
+            price: 40
         },
         bowman: {
             description: "Bowman: mysterious and pretty accurate. (40 gold)",
             price: 40
         },
         doctor: {
-            description: "Doctor: here to repay his studies's debt. (40 gold)",
-            price: 40
+            description: "Doctor: here to repay his studies's debt. (30 gold)",
+            price: 30
         },
     }
 
-    // about api
-    const baseUrl = "http://localhost:8080/api";
-    
-    // const baseUrl = "http://192.168.0.25:8080/api";
-    // const baseUrl = 'http://92.88.243.15:8080/api'
+    // base url api
+    const baseUrl = "/api";
 
     /*  _________________________________ PHASER FUNCTIONS _________________________________ */
 
@@ -146,6 +143,7 @@
                     checkTurnOver();
                     displayArmies();
                 } else if (tmpStatusRoom.status === 4 && statusRoom === 3) { // one player win
+                    console.log(JSON.stringify(tmpStatusRoom));
                     destroyGrid();
                     displayWinner(tmpStatusRoom.winner);
                 }
@@ -377,6 +375,7 @@
             // button more
             selectionItems.buttons[unit + "_more"] = game.add.button(0, 0, "more", () => {addUnit(unit);});
             selectionItems.buttons[unit + "_more"].scale.setTo(0.15, 0.15);
+            // console.log(selectionItems.buttons[unit].centerX);
             selectionItems.buttons[unit + "_more"].centerX = selectionItems.buttons[unit].centerX;
             selectionItems.buttons[unit + "_more"].centerY = selectionItems.buttons[unit].centerY - selectionItems.buttons[unit].height / 2 - selectionItems.buttons[unit + "_more"].height / 2 - 10;
             // button less
@@ -668,6 +667,7 @@
     function event(unit) {
         gameItems.text.statsLine.text = `Type: [${unit.type}] HP: [${unit.hp}/${unit.maxHp}] DMG: [${unit.dmg}]`;
         gameItems.text.statsLine.tint = 0xFFFFFF;
+        // console.log(`->myTurn ${myTurn} ->hasAttacked ${unit.hasAttacked}`);
         if (myTurn === true && unit.hasAttacked === false) {
             manageMove(unit);
         }
@@ -677,7 +677,7 @@
         gameItems.text.statsLine.text = `Type: [${unit.type}] HP: [${unit.hp}/${unit.maxHp}] DMG: [${unit.dmg}]`;
         gameItems.text.statsLine.tint = 0xFF0000;
         if (myTurn === true) {
-            showRangeEnemy(unit);  
+            showRangeEnemy(unit);
         }
     }
 
@@ -751,7 +751,7 @@
                     gameItems.buttons["move"].push(buttonMove);
                 }
             }
-        }   
+        }
     }
 
     function showRangeEnemy(unit) {
@@ -771,7 +771,7 @@
                     gameItems.buttons["move"].push(buttonMove);
                 }
             }
-        }   
+        }
     }
 
     function attackEnemy(unit, idxEnemy) {
@@ -865,10 +865,8 @@
     function retry() {
         reInit(idRoom);
         destroyWinnerMenu();
-        const response = sendRequest(`${baseUrl}/reinit_room/${idRoom}?idPlayer=${idPlayer}`, "GET");
-        if (response.firstToRetry === false) {
-            displaySelection();
-        }
+        sendRequest(`${baseUrl}/reinit_room/${idRoom}?idPlayer=${idPlayer}`, "GET");
+        displaySelection();
     }
 
     function destroyWinnerMenu() {
@@ -933,7 +931,7 @@
     function random(max) {
         return Math.floor(Math.random() * Math.floor(max));
     }
-    
+
     function sleep(ms) {
         return new Promise(resolve => setTimeout(resolve, ms));
     }
