@@ -12,10 +12,12 @@ function resetHasAttacked(idRoom, idPlayer, idOtherPlayer) {
 }
 
 function isOnAllie(idRoom, idPlayer, offsetX, offsetY, currentUnit) {
+    let idx = 0;
     for (const unit of global.ROOMS[idRoom][idPlayer].army) {
         if (unit.idx !== currentUnit.idx && unit.x === offsetX && unit.y === offsetY) {
-            return unit.idx;
+            return idx;
         }
+        idx++;
     }
     return -1;
 }
@@ -28,7 +30,6 @@ function doctorsAction(idRoom, idPlayer) {
                 for (let offsetY = unit.y - (unit.move + unit.range); offsetY <= unit.y + (unit.move + unit.range); offsetY++) {
                     const idxAllie = isOnAllie(idRoom, idPlayer, offsetX, offsetY, unit);
                     if (idxAllie !== -1) {
-                        // console.log(JSON.stringify(global.ROOMS[idRoom][idPlayer].army[idxAllie]))
                         const maxHp = global.ROOMS[idRoom][idPlayer].army[idxAllie].maxHp;
                         global.ROOMS[idRoom][idPlayer].army[idxAllie].hp += 3;
                         if (global.ROOMS[idRoom][idPlayer].army[idxAllie].hp > maxHp) {
