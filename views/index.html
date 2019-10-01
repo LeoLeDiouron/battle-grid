@@ -62,16 +62,16 @@
             price: 20
         },
         knight: {
-            description: "Knight: really heavy baby. (40 gold)",
-            price: 40
+            description: "Knight: really heavy baby. (30 gold)",
+            price: 30
         },
         bowman: {
             description: "Bowman: mysterious and pretty accurate. (40 gold)",
             price: 40
         },
         doctor: {
-            description: "Doctor: here to repay his studies's debt. (30 gold)",
-            price: 30
+            description: "Doctor: here to repay his studies's debt. (40 gold)",
+            price: 40
         },
     }
 
@@ -146,7 +146,6 @@
                     checkTurnOver();
                     displayArmies();
                 } else if (tmpStatusRoom.status === 4 && statusRoom === 3) { // one player win
-                    console.log(JSON.stringify(tmpStatusRoom));
                     destroyGrid();
                     displayWinner(tmpStatusRoom.winner);
                 }
@@ -378,7 +377,6 @@
             // button more
             selectionItems.buttons[unit + "_more"] = game.add.button(0, 0, "more", () => {addUnit(unit);});
             selectionItems.buttons[unit + "_more"].scale.setTo(0.15, 0.15);
-            // console.log(selectionItems.buttons[unit].centerX);
             selectionItems.buttons[unit + "_more"].centerX = selectionItems.buttons[unit].centerX;
             selectionItems.buttons[unit + "_more"].centerY = selectionItems.buttons[unit].centerY - selectionItems.buttons[unit].height / 2 - selectionItems.buttons[unit + "_more"].height / 2 - 10;
             // button less
@@ -670,7 +668,6 @@
     function event(unit) {
         gameItems.text.statsLine.text = `Type: [${unit.type}] HP: [${unit.hp}/${unit.maxHp}] DMG: [${unit.dmg}]`;
         gameItems.text.statsLine.tint = 0xFFFFFF;
-        // console.log(`->myTurn ${myTurn} ->hasAttacked ${unit.hasAttacked}`);
         if (myTurn === true && unit.hasAttacked === false) {
             manageMove(unit);
         }
@@ -868,8 +865,10 @@
     function retry() {
         reInit(idRoom);
         destroyWinnerMenu();
-        sendRequest(`${baseUrl}/reinit_room/${idRoom}?idPlayer=${idPlayer}`, "GET");
-        displaySelection();
+        const response = sendRequest(`${baseUrl}/reinit_room/${idRoom}?idPlayer=${idPlayer}`, "GET");
+        if (response.firstToRetry === false) {
+            displaySelection();
+        }
     }
 
     function destroyWinnerMenu() {

@@ -30,7 +30,7 @@ function doctorsAction(idRoom, idPlayer) {
                     if (idxAllie !== -1) {
                         // console.log(JSON.stringify(global.ROOMS[idRoom][idPlayer].army[idxAllie]))
                         const maxHp = global.ROOMS[idRoom][idPlayer].army[idxAllie].maxHp;
-                        global.ROOMS[idRoom][idPlayer].army[idxAllie].hp += 2;
+                        global.ROOMS[idRoom][idPlayer].army[idxAllie].hp += 3;
                         if (global.ROOMS[idRoom][idPlayer].army[idxAllie].hp > maxHp) {
                             global.ROOMS[idRoom][idPlayer].army[idxAllie].hp = maxHp;
                         }

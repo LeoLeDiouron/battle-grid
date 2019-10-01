@@ -30,9 +30,11 @@ function newRoom(idPlayer) {
 function reInitRoom(req, res, next) {
     const idRoom = req.params.idRoom;
     const idPlayer = req.query.idPlayer;
+    let firstToRetry = false;
 
     if (idRoom in global.ROOMS) {
         if (global.ROOMS[idRoom].winner !== null) {
+            firstToRetry = true;
             global.ROOMS[idRoom] = newRoom(idPlayer);
         } else {
             global.ROOMS[idRoom].status = 2;
@@ -40,8 +42,9 @@ function reInitRoom(req, res, next) {
         global.ROOMS[idRoom][idPlayer] = {};
         global.ROOMS[idRoom].players.push(idPlayer);
     }
-    console.log(`REINIT -> ${JSON.stringify(global.ROOMS[idRoom])}`);
-    res.send({});
+    res.send({
+        firstToRetry: firstToRetry
+    });
 }
 
 module.exports = reInitRoom;
