@@ -124,7 +124,6 @@
 
     async function create() {
         idPlayer = sendRequest(baseUrl + "/id_player", "GET").idPlayer;
-        console.log(`id player : ${idPlayer}`);
         displayMenu();
     }
 
@@ -143,7 +142,6 @@
                     checkTurnOver();
                     displayArmies();
                 } else if (tmpStatusRoom.status === 4 && statusRoom === 3) { // one player win
-                    console.log(JSON.stringify(tmpStatusRoom));
                     destroyGrid();
                     displayWinner(tmpStatusRoom.winner);
                 }
@@ -375,7 +373,6 @@
             // button more
             selectionItems.buttons[unit + "_more"] = game.add.button(0, 0, "more", () => {addUnit(unit);});
             selectionItems.buttons[unit + "_more"].scale.setTo(0.15, 0.15);
-            // console.log(selectionItems.buttons[unit].centerX);
             selectionItems.buttons[unit + "_more"].centerX = selectionItems.buttons[unit].centerX;
             selectionItems.buttons[unit + "_more"].centerY = selectionItems.buttons[unit].centerY - selectionItems.buttons[unit].height / 2 - selectionItems.buttons[unit + "_more"].height / 2 - 10;
             // button less
@@ -667,7 +664,6 @@
     function event(unit) {
         gameItems.text.statsLine.text = `Type: [${unit.type}] HP: [${unit.hp}/${unit.maxHp}] DMG: [${unit.dmg}]`;
         gameItems.text.statsLine.tint = 0xFFFFFF;
-        // console.log(`->myTurn ${myTurn} ->hasAttacked ${unit.hasAttacked}`);
         if (myTurn === true && unit.hasAttacked === false) {
             manageMove(unit);
         }
