@@ -1,3 +1,4 @@
+require('dotenv').config()
 const express = require("express");
 const path = require('path');
 
@@ -5,7 +6,7 @@ const file = "views/index.html";
 const rootPath = __dirname + "/";
 const server = require(rootPath + "server/index");
 
-const PORT = 8080;
+const PORT = process.env.APP_PORT;
 const app = express();
 
 app.use(express.json());

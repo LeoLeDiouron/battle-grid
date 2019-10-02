@@ -1,0 +1,21 @@
+version: '3.1'
+
+services:
+  battle-grid-server:
+    build: .
+    command: "npm start"
+    restart: always
+    container_name: ${VIRTUAL_HOST}
+    ports:
+      - "${DOCKER_PORT}:${APP_PORT}"
+    networks:
+      - default
+    environment:
+      - VIRTUAL_HOST=${VIRTUAL_HOST}
+      - LETSENCRYPT_HOST=${VIRTUAL_HOST}
+      - LETSENCRYPT_EMAIL=${LETSENCRYPT_EMAIL}
+
+networks:
+  default:
+    external:
+      name: webproxy
