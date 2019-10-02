@@ -35,7 +35,8 @@ function generateJsonArmy(nbUnits, idRoom, idPlayer) {
     let idxUnit = 0;
     let y = (firstPlayer === true) ? 13 : 1;
     let offset = 1;
-    let nbLines = 0;
+    let nbLines = 1;
+    let nbUnitOnLine = 0;
 
     for (const unit of listUnits) {
         for (let idx = 0; idx < nbUnits[unit]; idx++) {
@@ -46,19 +47,21 @@ function generateJsonArmy(nbUnits, idRoom, idPlayer) {
             newUnit["hasAttacked"] = false;
             army.push(newUnit);
             offset *= -1;
-            if (idxUnit % 2 === 1) {
+            if ((nbLines % 2 === 1 && nbUnitOnLine % 2 === 1) || (nbLines % 2 === 0 && nbUnitOnLine % 2 === 0)) {
                 offset += 2;
             }
+            idxUnit++;
+            nbUnitOnLine++;
             if (offset >= 8 || offset <= -8) {
+                nbUnitOnLine = 0;
+                nbLines++;
                 if (nbLines % 2 === 0) {
                     offset = 0;
                 } else {
                     offset = 1;
                 }
                 y += (firstPlayer === true) ? -1 : 1;
-                nbLines++;
             }
-            idxUnit++;
         }
     }
     army.push(getKingStats(firstPlayer, idxUnit))

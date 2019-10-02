@@ -6,6 +6,7 @@ function generateIdPlayer(req, res, next) {
         const rnd = Math.round(Math.random() * alphaNum.length - 1);
         idPlayer += alphaNum.charAt(rnd);
     }
+    console.log(`New player created: ${idPlayer}`);
     res.send({idPlayer});
 }
 

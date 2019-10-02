@@ -5,6 +5,7 @@ function randomRoom(req, res, next) {
             global.ROOMS[idRoom].status = 2;
             global.ROOMS[idRoom][req.query.idPlayer] = {};
             global.ROOMS[idRoom].players.push(req.query.idPlayer);
+            console.log(`Player ${req.query.idPlayer} join the room ${idRoom}`);
             res.send({idRoom});
             roomFound = true;
             break;

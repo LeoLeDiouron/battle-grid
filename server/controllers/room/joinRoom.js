@@ -9,6 +9,7 @@ function joinRoom(req, res, next) {
             global.ROOMS[req.params.idRoom].status = 2;
             global.ROOMS[req.params.idRoom][idPlayer] = {};
             global.ROOMS[idRoom].players.push(idPlayer);
+            console.log(`Player ${idPlayer} join the room ${idRoom}`);
         } else {
             status = -1;
             errorMessage = `This game is already full.`;
