@@ -19,6 +19,32 @@ function setHasAttacked(idRoom, idPlayer, body) {
     }
 }
 
+function createNewZombie(deadUnit) {
+    return {
+        type: "zombie",
+        hp: 10,
+        maxHp: 10,
+        dmg: 4,
+        move: 1,
+        range: 0,
+        idx: deadUnit.idx,
+        x: deadUnit.x,
+        y: deadUnit.y,
+        hasAttacked: false
+    }
+}
+
+function necromancerAction(idRoom, otherPlayer, idxUnit) {
+    for (let i = 0; i < global.ROOMS[idRoom][otherPlayer].army.length; i++) {
+        const currentUnit = global.ROOMS[idRoom][otherPlayer].army[i];
+        if (i !== idxUnit && currentUnit.type === "necromancer") {
+            const zombieUnit = createNewZombie(global.ROOMS[idRoom][otherPlayer].army[idxUnit]);
+            global.ROOMS[idRoom][otherPlayer].army.push(zombieUnit);
+            return;
+        }
+    }
+}
+
 function dealDamages(idRoom, idPlayer, body) {
     const otherPlayer = findOtherPlayer(idRoom, idPlayer);
 
@@ -27,12 +53,16 @@ function dealDamages(idRoom, idPlayer, body) {
             global.ROOMS[idRoom][otherPlayer].army[i].hp -= findDmgUnit(global.ROOMS[idRoom][idPlayer].army, body.idx);
             if (global.ROOMS[idRoom][otherPlayer].army[i].hp <= 0) {
                 if (global.ROOMS[idRoom][otherPlayer].army[i].type !== "king") {
+                    if (global.ROOMS[idRoom][otherPlayer].army[i].type !== "zombie" && global.ROOMS[idRoom][otherPlayer].army[i].type !== "necromancer") {
+                        necromancerAction(idRoom, otherPlayer, i);
+                    }
                     global.ROOMS[idRoom][otherPlayer].army.splice(i, 1);
                 } else {
                     global.ROOMS[idRoom].winner = idPlayer;
                     global.ROOMS[idRoom].status = 4;
                 }
             }
+            break;
         }
     }
 }

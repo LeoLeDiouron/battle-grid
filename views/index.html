@@ -51,27 +51,39 @@
     let statusGame = null;
     let statusGameChanged = null;
     let myTurn = null;
-    const listUnits = ["peasant", "ninja", "knight", "bowman", "doctor"];
+    const listUnits = ["peasant", "soldier", "bowman", "ninja", "doctor", "knight", "crossbowman", "necromancer"];
     const selectionInfoUnit = {
         peasant: {
             description: "Pesant: basic unit. (10 gold)",
             price: 10
         },
-        ninja: {
-            description: "Ninja: fast. strong. handsome. (20 gold)",
+        soldier: {
+            description: "Soldier: just a peasant with an armor. (20 gold)",
             price: 20
         },
-        knight: {
-            description: "Knight: really heavy baby. (30 gold)",
+        bowman: {
+            description: "Bowman: mysterious and pretty accurate. (30 gold)",
             price: 30
         },
-        bowman: {
-            description: "Bowman: mysterious and pretty accurate. (40 gold)",
+        ninja: {
+            description: "Ninja: fast. strong. handsome. (40 gold)",
             price: 40
         },
         doctor: {
-            description: "Doctor: here to repay his studies's debt. (40 gold)",
-            price: 40
+            description: "Doctor: here to repay his studies's debt. (50 gold)",
+            price: 50
+        },
+        knight: {
+            description: "Knight: really heavy baby. (60 gold)",
+            price: 60
+        },
+        crossbowman: {
+            description: "Crossbowman: unofficial son of Guillaume Tell. (70 gold)",
+            price: 70
+        },
+        necromancer: {
+            description: "Necromancer: death is never definitive. (100 gold)",
+            price: 100
         },
     }
 
@@ -95,11 +107,15 @@
         game.load.image('less', 'assets/images/selection/less.png');
         // load units
         game.load.image('peasant', 'assets/images/units/peasant.png');
+        game.load.image('soldier', 'assets/images/units/soldier.png');
         game.load.image('ninja', 'assets/images/units/ninja.png');
         game.load.image('knight', 'assets/images/units/knight.png');
         game.load.image('bowman', 'assets/images/units/bowman.png');
         game.load.image('king', 'assets/images/units/king.png');
         game.load.image('doctor', 'assets/images/units/doctor.png');
+        game.load.image('crossbowman', 'assets/images/units/crossbowman.png');
+        game.load.image('necromancer', 'assets/images/units/necromancer.png');
+        game.load.image('zombie', 'assets/images/units/zombie.png');
         // load images action
         game.load.image('attack', 'assets/images/round/attack.png');
         game.load.image('move', 'assets/images/round/move.png');
@@ -399,10 +415,13 @@
     function initalizeArmy() {
         return {
             peasant: 0,
+            soldier: 0,
             ninja: 0,
             knight: 0,
             bowman: 0,
             doctor: 0,
+            crossbowman: 0,
+            necromancer: 0
         };
     }
 
