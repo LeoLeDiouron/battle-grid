@@ -1,6 +1,6 @@
-<!doctype html>
-<html lang="en">
-<head>
+<!doctype html> 
+<html lang="en"> 
+<head> 
     <meta charset="UTF-8" />
     <title>BattleGrid</title>
     <script src="./phaser.min.js"></script>
@@ -62,20 +62,20 @@
             price: 20
         },
         knight: {
-            description: "Knight: really heavy baby. (40 gold)",
-            price: 40
+            description: "Knight: really heavy baby. (30 gold)",
+            price: 30
         },
         bowman: {
             description: "Bowman: mysterious and pretty accurate. (40 gold)",
             price: 40
         },
         doctor: {
-            description: "Doctor: here to repay his studies's debt. (30 gold)",
-            price: 30
+            description: "Doctor: here to repay his studies's debt. (40 gold)",
+            price: 40
         },
     }
 
-    // base url api
+    // about api
     const baseUrl = "/api";
 
     /*  _________________________________ PHASER FUNCTIONS _________________________________ */
@@ -124,6 +124,7 @@
 
     async function create() {
         idPlayer = sendRequest(baseUrl + "/id_player", "GET").idPlayer;
+        console.log(`id player : ${idPlayer}`);
         displayMenu();
     }
 
@@ -673,7 +674,7 @@
         gameItems.text.statsLine.text = `Type: [${unit.type}] HP: [${unit.hp}/${unit.maxHp}] DMG: [${unit.dmg}]`;
         gameItems.text.statsLine.tint = 0xFF0000;
         if (myTurn === true) {
-            showRangeEnemy(unit);
+            showRangeEnemy(unit);  
         }
     }
 
@@ -747,7 +748,7 @@
                     gameItems.buttons["move"].push(buttonMove);
                 }
             }
-        }
+        }   
     }
 
     function showRangeEnemy(unit) {
@@ -767,7 +768,7 @@
                     gameItems.buttons["move"].push(buttonMove);
                 }
             }
-        }
+        }   
     }
 
     function attackEnemy(unit, idxEnemy) {
@@ -861,8 +862,10 @@
     function retry() {
         reInit(idRoom);
         destroyWinnerMenu();
-        sendRequest(`${baseUrl}/reinit_room/${idRoom}?idPlayer=${idPlayer}`, "GET");
-        displaySelection();
+        const response = sendRequest(`${baseUrl}/reinit_room/${idRoom}?idPlayer=${idPlayer}`, "GET");
+        if (response.firstToRetry === false) {
+            displaySelection();
+        }
     }
 
     function destroyWinnerMenu() {
@@ -927,7 +930,7 @@
     function random(max) {
         return Math.floor(Math.random() * Math.floor(max));
     }
-
+    
     function sleep(ms) {
         return new Promise(resolve => setTimeout(resolve, ms));
     }
