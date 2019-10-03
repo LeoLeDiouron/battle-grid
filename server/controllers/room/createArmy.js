@@ -2,9 +2,9 @@ const statsAllUnit = {
     king: createUnitType("king", 8, 2, 1, 0),
     peasant: createUnitType("peasant", 5, 2, 2, 0),
     soldier: createUnitType("soldier", 6, 3, 2, 0),
-    bowman: createUnitType("bowman", 4, 3, 2, 2),
+    bowman: createUnitType("bowman", 5, 3, 2, 2),
     ninja: createUnitType("ninja", 7, 3, 3, 0),
-    doctor: createUnitType("doctor", 6, 1, 2, 2),
+    doctor: createUnitType("doctor", 7, 1, 2, 1),
     knight: createUnitType("knight", 12, 4, 2, 0),
     crossbowman: createUnitType("crossbowman", 7, 4, 1, 5),
     necromancer: createUnitType("necromancer", 6, 8, 1, 0)
