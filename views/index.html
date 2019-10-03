@@ -585,7 +585,7 @@
             gameItems.buttons.blocked.push(blockedButton);
         }
         // add damaged effect
-        if (unit.hp <= 4) {
+        if (unit.hp < 3) {
             const damagedButton = game.add.button(x, y, "damaged", event);
             damagedButton.scale.setTo(0.17, 0.17);
             damagedButton.alpha = 0.3;
