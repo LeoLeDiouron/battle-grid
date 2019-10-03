@@ -51,39 +51,44 @@
     let statusGame = null;
     let statusGameChanged = null;
     let myTurn = null;
-    const listUnits = ["peasant", "soldier", "bowman", "ninja", "doctor", "knight", "crossbowman", "necromancer"];
+    let selectedUnit = null;
+    const listUnits = ["peasant", "shieldman", "soldier", "bowman", "ninja", "doctor", "knight", "crossbowman", "necromancer"];
     const selectionInfoUnit = {
         peasant: {
             description: "Pesant: basic unit. (10 gold)",
             price: 10
         },
+        shieldman: {
+            description: "Shieldman: a wall with two eyes. (10 gold)",
+            price: 10
+        },
+        bowman: {
+            description: "Bowman: mysterious and pretty accurate. (20 gold)",
+            price: 20
+        },
         soldier: {
             description: "Soldier: just a peasant with an armor. (20 gold)",
             price: 20
         },
-        bowman: {
-            description: "Bowman: mysterious and pretty accurate. (30 gold)",
+        ninja: {
+            description: "Ninja: fast. strong. handsome. (30 gold)",
             price: 30
         },
-        ninja: {
-            description: "Ninja: fast. strong. handsome. (40 gold)",
-            price: 40
-        },
         doctor: {
-            description: "Doctor: here to repay his studies's debt. (50 gold)",
-            price: 50
+            description: "Doctor: here to repay his studies's debt. (30 gold)",
+            price: 30
         },
         knight: {
-            description: "Knight: really heavy baby. (60 gold)",
-            price: 60
+            description: "Knight: really heavy baby. (40 gold)",
+            price: 40
         },
         crossbowman: {
-            description: "Crossbowman: unofficial son of Guillaume Tell. (70 gold)",
-            price: 70
+            description: "Crossbowman: unofficial son of Guillaume Tell. (40 gold)",
+            price: 40
         },
         necromancer: {
-            description: "Necromancer: death is never definitive. (80 gold)",
-            price: 80
+            description: "Necromancer: death is never definitive. (50 gold)",
+            price: 50
         },
     }
 
@@ -106,12 +111,13 @@
         game.load.image('more', 'assets/images/selection/more.png');
         game.load.image('less', 'assets/images/selection/less.png');
         // load units
+        game.load.image('king', 'assets/images/units/king.png');
         game.load.image('peasant', 'assets/images/units/peasant.png');
+        game.load.image('shieldman', 'assets/images/units/shieldman.png');
         game.load.image('soldier', 'assets/images/units/soldier.png');
         game.load.image('ninja', 'assets/images/units/ninja.png');
         game.load.image('knight', 'assets/images/units/knight.png');
         game.load.image('bowman', 'assets/images/units/bowman.png');
-        game.load.image('king', 'assets/images/units/king.png');
         game.load.image('doctor', 'assets/images/units/doctor.png');
         game.load.image('crossbowman', 'assets/images/units/crossbowman.png');
         game.load.image('necromancer', 'assets/images/units/necromancer.png');
@@ -415,6 +421,7 @@
     function initalizeArmy() {
         return {
             peasant: 0,
+            shieldman: 0,
             soldier: 0,
             ninja: 0,
             knight: 0,
@@ -649,6 +656,7 @@
     }
 
     function destroyMoveButtons() {
+        selectedUnit = null;
         for (let idx = 0; idx < gameItems.buttons.move.length; idx++) {
             gameItems.buttons.move[idx].destroy();
         }
@@ -682,18 +690,28 @@
     }
 
     function event(unit) {
-        gameItems.text.statsLine.text = `Type: [${unit.type}] HP: [${unit.hp}/${unit.maxHp}] DMG: [${unit.dmg}]`;
-        gameItems.text.statsLine.tint = 0xFFFFFF;
-        if (myTurn === true && unit.hasAttacked === false) {
-            manageMove(unit);
+        if (selectedUnit === null || selectedUnit !== unit.idx) {
+            gameItems.text.statsLine.text = `Type: [${unit.type}] HP: [${unit.hp}/${unit.maxHp}] DMG: [${unit.dmg}]`;
+            gameItems.text.statsLine.tint = 0xFFFFFF;
+            if (myTurn === true && unit.hasAttacked === false) {
+                manageMove(unit);
+                selectedUnit = unit.idx;
+            }
+        } else {
+            destroyMoveButtons();
         }
     }
 
     function eventEnemy(unit) {
-        gameItems.text.statsLine.text = `Type: [${unit.type}] HP: [${unit.hp}/${unit.maxHp}] DMG: [${unit.dmg}]`;
-        gameItems.text.statsLine.tint = 0xFF0000;
-        if (myTurn === true) {
-            showRangeEnemy(unit);  
+        if (selectedUnit === null || selectedUnit !== unit.idx * -1) {
+            gameItems.text.statsLine.text = `Type: [${unit.type}] HP: [${unit.hp}/${unit.maxHp}] DMG: [${unit.dmg}]`;
+            gameItems.text.statsLine.tint = 0xFF0000;
+            if (myTurn === true) {
+                showRangeEnemy(unit);
+                selectedUnit = unit.idx * -1;
+            }
+        } else {
+            destroyMoveButtons();
         }
     }
 
@@ -794,7 +812,7 @@
                 const idxEnemy = isOnEnemy(offsetX, offsetY);
                 const x = (idPlayer === statusGame.firstPlayer) ? beginX + (offsetX * sizeCell) : beginX + ((14 - offsetX) * sizeCell);
                 const y = (idPlayer === statusGame.firstPlayer) ?  beginY  + (offsetY * sizeCell) : beginY  + ((14 - offsetY) * sizeCell);
-                if (statusBehindObastacle === 0 && idxEnemy !== -1) {
+                if (idxEnemy !== -1) {
                     const buttonMove = game.add.button(x, y, 'attack', () => {attackEnemy(unit, idxEnemy)});
                     buttonMove.scale.setTo(0.17, 0.17);
                     gameItems.buttons["move"].push(buttonMove);
@@ -826,13 +844,15 @@
                 if (statusBehindObastacle === 1) {
                     continue;
                 }
-                const onAllie = isOnAllie(offsetX, offsetY, unit, false);
                 const canMove = haveToDisplayMove(offsetX, offsetY, unit, false);
-                if (onAllie === false && canMove === true) {
+                if (canMove === true) {
                     const x = (idPlayer === statusGame.firstPlayer) ? beginX + (offsetX * sizeCell) : beginX + ((14 - offsetX) * sizeCell);
                     const y = (idPlayer === statusGame.firstPlayer) ?  beginY  + (offsetY * sizeCell) : beginY  + ((14 - offsetY) * sizeCell);
-                    const buttonMove = game.add.button(x, y, 'enemyRange', () => {});
+                    const buttonMove = game.add.button(x, y, 'enemyRange', () => {destroyMoveButtons();});
                     buttonMove.scale.setTo(0.17, 0.17);
+                    if (isOnAllie(offsetX, offsetY, unit, false) === true) {
+                        buttonMove.alpha = 0.5;
+                    }
                     gameItems.buttons["move"].push(buttonMove);
                 }
             }

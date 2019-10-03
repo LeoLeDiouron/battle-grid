@@ -22,8 +22,8 @@ function setHasAttacked(idRoom, idPlayer, body) {
 function createNewZombie(deadUnit) {
     return {
         type: "zombie",
-        hp: 8,
-        maxHp: 8,
+        hp: 6,
+        maxHp: 6,
         dmg: 1,
         move: 1,
         range: 0,
