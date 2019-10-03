@@ -31,7 +31,7 @@ function doctorsAction(idRoom, idPlayer) {
                     const idxAllie = isOnAllie(idRoom, idPlayer, offsetX, offsetY, unit);
                     if (idxAllie !== -1) {
                         const maxHp = global.ROOMS[idRoom][idPlayer].army[idxAllie].maxHp;
-                        global.ROOMS[idRoom][idPlayer].army[idxAllie].hp += 3;
+                        global.ROOMS[idRoom][idPlayer].army[idxAllie].hp += 2;
                         if (global.ROOMS[idRoom][idPlayer].army[idxAllie].hp > maxHp) {
                             global.ROOMS[idRoom][idPlayer].army[idxAllie].hp = maxHp;
                         }

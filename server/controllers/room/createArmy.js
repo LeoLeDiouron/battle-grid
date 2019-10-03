@@ -1,13 +1,13 @@
 const statsAllUnit = {
-    king: createUnitType("king", 10, 4, 1, 0),
-    peasant: createUnitType("peasant", 10, 4, 2, 0),
-    soldier: createUnitType("soldier", 12, 4, 2, 1),
-    bowman: createUnitType("bowman", 8, 6, 2, 2),
-    ninja: createUnitType("ninja", 10, 4, 3, 0),
-    doctor: createUnitType("doctor", 10, 2, 2, 0),
-    knight: createUnitType("knight", 25, 5, 2, 0),
-    crossbowman: createUnitType("crossbowman", 12, 6, 1, 4),
-    necromancer: createUnitType("necromancer", 15, 3, 2, 0)
+    king: createUnitType("king", 8, 2, 1, 0),
+    peasant: createUnitType("peasant", 5, 2, 2, 0),
+    soldier: createUnitType("soldier", 6, 3, 2, 0),
+    bowman: createUnitType("bowman", 4, 3, 2, 2),
+    ninja: createUnitType("ninja", 7, 3, 3, 0),
+    doctor: createUnitType("doctor", 6, 1, 2, 2),
+    knight: createUnitType("knight", 12, 4, 2, 0),
+    crossbowman: createUnitType("crossbowman", 7, 4, 1, 5),
+    necromancer: createUnitType("necromancer", 6, 8, 1, 0)
 };
 
 const listUnits = ["peasant", "soldier", "bowman", "ninja", "doctor", "knight", "crossbowman", "necromancer"];
