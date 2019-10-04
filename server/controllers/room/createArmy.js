@@ -1,21 +1,21 @@
 const statsAllUnit = {
-    king: createUnitType("king", 8, 2, 1, 0),
-    peasant: createUnitType("peasant", 5, 2, 2, 0),
-    shieldman: createUnitType("shieldman", 10, 0, 2, 0),
-    soldier: createUnitType("soldier", 6, 3, 2, 0),
-    bowman: createUnitType("bowman", 5, 3, 2, 2),
-    ninja: createUnitType("ninja", 7, 3, 3, 0),
-    doctor: createUnitType("doctor", 7, 1, 2, 1),
-    knight: createUnitType("knight", 12, 4, 2, 0),
-    crossbowman: createUnitType("crossbowman", 7, 4, 1, 5),
-    necromancer: createUnitType("necromancer", 6, 4, 1, 0)
+    king: createUnitType("king", 8, 2, 1, 0, 1),
+    peasant: createUnitType("peasant", 5, 2, 2, 0, 1),
+    shieldman: createUnitType("shieldman", 10, 0, 2, 0, 1),
+    soldier: createUnitType("soldier", 6, 3, 2, 0, 1),
+    bowman: createUnitType("bowman", 5, 3, 2, 2, 1),
+    ninja: createUnitType("ninja", 6, 2, 3, 0, 2),
+    doctor: createUnitType("doctor", 7, 1, 2, 1, 1),
+    knight: createUnitType("knight", 12, 4, 2, 0, 1),
+    crossbowman: createUnitType("crossbowman", 7, 2, 1, 5, 2),
+    necromancer: createUnitType("necromancer", 6, 4, 1, 0, 1)
 };
 
 const listUnits = ["peasant", "shieldman", "soldier", "bowman", "ninja", "doctor", "knight", "crossbowman", "necromancer"];
 
-function createUnitType(type, hp, dmg, move, range) {
+function createUnitType(type, hp, dmg, move, range, nbAttack) {
     return {
-        type, hp, maxHp: hp, dmg, move, range
+        type, hp, maxHp: hp, dmg, move, range, nbAttack, maxNbAttack: nbAttack
     };
 }
 
@@ -28,7 +28,6 @@ function getKingStats(firstPlayer, idxUnit) {
     king["x"] = 7;
     king["y"] = (firstPlayer === true) ? 14 : 0;
     king["idx"] = idxUnit;
-    king["hasAttacked"] = false;
     return king;
 }
 
@@ -47,7 +46,6 @@ function generateJsonArmy(nbUnits, idRoom, idPlayer) {
             newUnit["x"] = 7 + offset;
             newUnit["y"] = y;
             newUnit["idx"] = idxUnit;
-            newUnit["hasAttacked"] = false;
             army.push(newUnit);
             offset *= -1;
             if ((nbLines % 2 === 1 && nbUnitOnLine % 2 === 1) || (nbLines % 2 === 0 && nbUnitOnLine % 2 === 0)) {

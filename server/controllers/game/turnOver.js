@@ -4,10 +4,10 @@ function findOtherPlayer(idRoom, idPlayer) {
 
 function resetHasAttacked(idRoom, idPlayer, idOtherPlayer) {
     for (let i = 0; i < global.ROOMS[idRoom][idPlayer].army.length; i++) {
-        global.ROOMS[idRoom][idPlayer].army[i].hasAttacked = false;
+        global.ROOMS[idRoom][idPlayer].army[i].nbAttack = global.ROOMS[idRoom][idPlayer].army[i].maxNbAttack;
     }
     for (let i = 0; i < global.ROOMS[idRoom][idOtherPlayer].army.length; i++) {
-        global.ROOMS[idRoom][idOtherPlayer].army[i].hasAttacked = false;
+        global.ROOMS[idRoom][idOtherPlayer].army[i].nbAttack = global.ROOMS[idRoom][idOtherPlayer].army[i].maxNbAttack;
     }
 }
 

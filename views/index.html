@@ -3,8 +3,11 @@
 <head> 
     <meta charset="UTF-8" />
     <title>BattleGrid</title>
+    <!-- phaser imports -->
     <script src="./phaser.min.js"></script>
     <script src="./phaser-input.js"></script>
+    <!-- custom imports -->
+    <script src="./views/js/loadAssets.js"></script>
     <style type="text/css">
         body {
             margin: 0;
@@ -21,7 +24,7 @@
     let windowWidth = window.innerWidth;
     let windowHeight = window.innerHeight;
     let sizeScreenChanged = false;
-    const game = new Phaser.Game(windowWidth, windowHeight, Phaser.AUTO, 'battle-grid', { preload: preload, create: create, update: update });
+    let game = new Phaser.Game(windowWidth, windowHeight, Phaser.AUTO, 'battle-grid', { preload: preload, create: create, update: update });
     let idxFrame = 0;
     let graphics = null;
 
@@ -98,50 +101,7 @@
     /*  _________________________________ PHASER FUNCTIONS _________________________________ */
 
     function preload() {
-        // plugin for input
-        game.add.plugin(PhaserInput.Plugin);
-        // load menu buttons
-        game.load.image('new', 'assets/images/menu/new.png');
-        game.load.image('join', 'assets/images/menu/join.png');
-        game.load.image('random', 'assets/images/menu/random.png');
-        // load join buttons
-        game.load.image('back', 'assets/images/menu/back.png');
-        // load selection buttons
-        game.load.image('validate', 'assets/images/selection/validate.png');
-        game.load.image('more', 'assets/images/selection/more.png');
-        game.load.image('less', 'assets/images/selection/less.png');
-        // load units
-        game.load.image('king', 'assets/images/units/king.png');
-        game.load.image('peasant', 'assets/images/units/peasant.png');
-        game.load.image('shieldman', 'assets/images/units/shieldman.png');
-        game.load.image('soldier', 'assets/images/units/soldier.png');
-        game.load.image('ninja', 'assets/images/units/ninja.png');
-        game.load.image('knight', 'assets/images/units/knight.png');
-        game.load.image('bowman', 'assets/images/units/bowman.png');
-        game.load.image('doctor', 'assets/images/units/doctor.png');
-        game.load.image('crossbowman', 'assets/images/units/crossbowman.png');
-        game.load.image('necromancer', 'assets/images/units/necromancer.png');
-        game.load.image('zombie', 'assets/images/units/zombie.png');
-        // load images action
-        game.load.image('attack', 'assets/images/round/attack.png');
-        game.load.image('move', 'assets/images/round/move.png');
-        game.load.image('range', 'assets/images/round/range.png');
-        game.load.image('blocked', 'assets/images/round/blocked.png');
-        game.load.image('enemyBorder', 'assets/images/round/enemy_border.png');
-        game.load.image('enemyRange', 'assets/images/round/enemy_range.png');
-        // load background
-        game.load.image('fog', 'assets/images/round/fog.png');
-        game.load.image('damaged', 'assets/images/round/damaged.png');
-        game.load.image('obstacle', 'assets/images/round/areas/desert/obstacle.png');
-        game.load.image('ground1', 'assets/images/round/areas/desert/ground1.png');
-        game.load.image('ground2', 'assets/images/round/areas/desert/ground2.png');
-        game.load.image('ground3', 'assets/images/round/areas/desert/ground3.png');
-        game.load.image('ground4', 'assets/images/round/areas/desert/ground4.png');
-        game.load.image('ground5', 'assets/images/round/areas/desert/ground5.png');
-        // load end buttons
-        game.load.image('retry', 'assets/images/menu/retry.png');
-        // load font
-        game.load.bitmapFont('font', 'assets/fonts/font.png', 'assets/fonts/font.xml');
+        game = loadAssets(game);
     }
 
     async function create() {
@@ -514,6 +474,9 @@
             gameItems.images.obstacles.push(imgObstacle);
         }
         gameItems.images["fog"] = [];
+        const nextButton = game.add.button(beginX + sizeCell * (sizeGrid - 1), beginY - 10 - sizeCell, "next", () => {skipTurn();});
+        nextButton.scale.setTo(sizeCell / nextButton.width, sizeCell / nextButton.height);
+        gameItems.buttons["next"] = nextButton;
     }
 
     function destroyGrid() {
@@ -522,22 +485,25 @@
             destroyArmies();
         }
         if ("move" in gameItems.buttons) {
-            destroyMoveButtons();
+            destroyButtonsMove();
         }
         if ("blocked" in gameItems.buttons) {
-            destroyBlockedButtons();
+            destroyArrayButtons("blocked");
         }
         if ("enemiesBorder" in gameItems.buttons) {
-            destroyEnemiesButtons();
+            destroyArrayButtons("enemiesBorder");
         }
         if ("obstacles" in gameItems.images) {
-            destroyObstacles();
+            destroyArrayImages("obstacles");
         }
         if ("ground" in gameItems.images) {
-            destroyGround();
+            destroyArrayImages("ground");
         }
         if ("damaged" in gameItems.buttons) {
-            destroyDamagedButtons();
+            destroyArrayButtons("damaged");
+        }
+        if ("next" in gameItems.buttons) {
+            gameItems.buttons["next"].destroy();
         }
         for (const [textKey, textValue] of Object.entries(gameItems.text)) {
             gameItems.text[textKey].destroy();
@@ -551,9 +517,9 @@
         }
         if ("myArmy" in gameItems.buttons && "enemyArmy" in gameItems.buttons) {
             destroyArmies();
-            destroyBlockedButtons();
-            destroyEnemiesButtons();
-            destroyDamagedButtons();
+            destroyArrayButtons("blocked");
+            destroyArrayButtons("enemiesBorder");
+            destroyArrayButtons("damaged");
         }
         gameItems.buttons["myArmy"] = {};
         gameItems.buttons["enemyArmy"] = {};
@@ -586,7 +552,7 @@
             gameItems.buttons.enemiesBorder.push(enemyBorder);
         }
         // add blocked icon
-        if (unit.hasAttacked === true) {
+        if (unit.nbAttack === 0) {
             const blockedButton = game.add.button(x, y, "blocked", event);
             blockedButton.scale.setTo(0.17, 0.17);
             gameItems.buttons.blocked.push(blockedButton);
@@ -612,7 +578,7 @@
 
     function applyFog() {
         if ("fog" in gameItems.images) {
-            destroyFog();
+            destroyArrayImages("fog");
         }
         for (let x = 0; x < sizeGrid; x++) {
             for (let y = 0; y < sizeGrid; y++) {
@@ -637,47 +603,21 @@
         }
     }
 
-    function destroyBlockedButtons() {
-        for (let idx = 0; idx < gameItems.buttons.blocked.length; idx++) {
-            gameItems.buttons.blocked[idx].destroy();
+    function destroyArrayButtons(type) {
+        for (let idx = 0; idx < gameItems.buttons[type].length; idx++) {
+            gameItems.buttons[type][idx].destroy();
         }
     }
 
-    function destroyEnemiesButtons() {
-        for (let idx = 0; idx < gameItems.buttons.enemiesBorder.length; idx++) {
-            gameItems.buttons.enemiesBorder[idx].destroy();
+    function destroyArrayImages(type) {
+        for (let idx = 0; idx < gameItems.images[type].length; idx++) {
+            gameItems.images[type][idx].destroy();
         }
     }
 
-    function destroyDamagedButtons() {
-        for (let idx = 0; idx < gameItems.buttons.damaged.length; idx++) {
-            gameItems.buttons.damaged[idx].destroy();
-        }
-    }
-
-    function destroyMoveButtons() {
+    function destroyButtonsMove() {
+        destroyArrayButtons("move");
         selectedUnit = null;
-        for (let idx = 0; idx < gameItems.buttons.move.length; idx++) {
-            gameItems.buttons.move[idx].destroy();
-        }
-    }
-
-    function destroyObstacles() {
-        for (let idx = 0; idx < gameItems.images.obstacles.length; idx++) {
-            gameItems.images.obstacles[idx].destroy();
-        }
-    }
-
-    function destroyFog() {
-        for (let idx = 0; idx < gameItems.images.fog.length; idx++) {
-            gameItems.images.fog[idx].destroy();
-        }
-    }
-
-    function destroyGround() {
-        for (let idx = 0; idx < gameItems.images.ground.length; idx++) {
-            gameItems.images.ground[idx].destroy();
-        }
     }
 
     function initGameItems() {
@@ -693,12 +633,12 @@
         if (selectedUnit === null || selectedUnit !== unit.idx) {
             gameItems.text.statsLine.text = `Type: [${unit.type}] HP: [${unit.hp}/${unit.maxHp}] DMG: [${unit.dmg}]`;
             gameItems.text.statsLine.tint = 0xFFFFFF;
-            if (myTurn === true && unit.hasAttacked === false) {
+            if (myTurn === true && unit.nbAttack > 0) {
                 manageMove(unit);
                 selectedUnit = unit.idx;
             }
         } else {
-            destroyMoveButtons();
+            destroyButtonsMove();
         }
     }
 
@@ -711,7 +651,7 @@
                 selectedUnit = unit.idx * -1;
             }
         } else {
-            destroyMoveButtons();
+            destroyButtonsMove();
         }
     }
 
@@ -800,7 +740,7 @@
 
     function manageMove(unit) {
         if ("move" in gameItems.buttons) {
-            destroyMoveButtons();
+            destroyButtonsMove();
         }
         gameItems.buttons["move"] = [];
         for (let offsetX = unit.x - (unit.move + unit.range); offsetX <= unit.x + (unit.move + unit.range); offsetX++) {
@@ -832,7 +772,7 @@
 
     function showRangeEnemy(unit) {
         if ("move" in gameItems.buttons) {
-            destroyMoveButtons();
+            destroyButtonsMove();
         }
         gameItems.buttons["move"] = [];
         for (let offsetX = unit.x - (unit.move + unit.range); offsetX <= unit.x + (unit.move + unit.range); offsetX++) {
@@ -848,7 +788,7 @@
                 if (canMove === true) {
                     const x = (idPlayer === statusGame.firstPlayer) ? beginX + (offsetX * sizeCell) : beginX + ((14 - offsetX) * sizeCell);
                     const y = (idPlayer === statusGame.firstPlayer) ?  beginY  + (offsetY * sizeCell) : beginY  + ((14 - offsetY) * sizeCell);
-                    const buttonMove = game.add.button(x, y, 'enemyRange', () => {destroyMoveButtons();});
+                    const buttonMove = game.add.button(x, y, 'enemyRange', () => {destroyButtonsMove();});
                     buttonMove.scale.setTo(0.17, 0.17);
                     if (isOnAllie(offsetX, offsetY, unit, false) === true) {
                         buttonMove.alpha = 0.5;
@@ -860,7 +800,7 @@
     }
 
     function attackEnemy(unit, idxEnemy) {
-        destroyMoveButtons();
+        destroyButtonsMove();
         const url = `${baseUrl}/attack/${idRoom}?idPlayer=${idPlayer}`;
         const body = {
             idx: unit.idx,
@@ -870,7 +810,7 @@
     }
 
     function moveUnit(unit, offsetX, offsetY) {
-        destroyMoveButtons();
+        destroyButtonsMove();
         const url = `${baseUrl}/move/${idRoom}?idPlayer=${idPlayer}`;
         const body = {
             idx: unit.idx,
@@ -882,7 +822,7 @@
 
     function everyUnitHasAttacked() {
         for (const unit of statusGame.myArmy) {
-            if (unit.hasAttacked === false) {
+            if (unit.nbAttack > 0) {
                 return false;
             }
         }
@@ -901,6 +841,12 @@
         } else {
             gameItems.text["turn"].text = `Enemy's turn - ${statusGame.nbActions}/4`;
         }
+    }
+
+    function skipTurn() {
+        destroyButtonsMove();
+        const url = `${baseUrl}/turn_over/${idRoom}?idPlayer=${idPlayer}`;
+        sendRequest(url, "GET");
     }
 
     /* _________________________________ SCENE 4 - WINNER _________________________________ */
