@@ -47,25 +47,46 @@ function necromancerAction(idRoom, otherPlayer, idxUnit) {
 }
 
 function dealDamages(idRoom, idPlayer, body) {
-    const otherPlayer = findOtherPlayer(idRoom, idPlayer);
+    const idOtherPlayer = findOtherPlayer(idRoom, idPlayer);
 
-    for (let i = 0; i < global.ROOMS[idRoom][otherPlayer].army.length; i++) {
-        if (global.ROOMS[idRoom][otherPlayer].army[i].idx === body.idxEnemy) {
-            global.ROOMS[idRoom][otherPlayer].army[i].hp -= findDmgUnit(global.ROOMS[idRoom][idPlayer].army, body.idx);
-            if (global.ROOMS[idRoom][otherPlayer].army[i].hp <= 0) {
-                if (global.ROOMS[idRoom][otherPlayer].army[i].type !== "king") {
-                    if (global.ROOMS[idRoom][otherPlayer].army[i].type !== "zombie" && global.ROOMS[idRoom][otherPlayer].army[i].type !== "necromancer") {
-                        necromancerAction(idRoom, otherPlayer, i);
+    for (let i = 0; i < global.ROOMS[idRoom][idOtherPlayer].army.length; i++) {
+        if (global.ROOMS[idRoom][idOtherPlayer].army[i].idx === body.idxEnemy) {
+            global.ROOMS[idRoom][idOtherPlayer].army[i].hp -= findDmgUnit(global.ROOMS[idRoom][idPlayer].army, body.idx);
+            if (global.ROOMS[idRoom][idOtherPlayer].army[i].hp <= 0) {
+                if (global.ROOMS[idRoom][idOtherPlayer].army[i].type !== "king") {
+                    if (global.ROOMS[idRoom][idOtherPlayer].army[i].type !== "zombie" && global.ROOMS[idRoom][idOtherPlayer].army[i].type !== "necromancer") {
+                        necromancerAction(idRoom, idOtherPlayer, i);
                     }
-                    global.ROOMS[idRoom][otherPlayer].army.splice(i, 1);
+                    global.ROOMS[idRoom][idOtherPlayer].army.splice(i, 1);
                 } else {
                     global.ROOMS[idRoom].winner = idPlayer;
                     global.ROOMS[idRoom].status = 4;
                 }
+            } else {
+                addAttackAnimation(idRoom, idPlayer, idOtherPlayer, global.ROOMS[idRoom][idOtherPlayer].army[i].idx);
             }
             break;
         }
     }
+}
+
+function addAttackAnimation(idRoom, idPlayer, idOtherPlayer, idxUnit) {
+    const x = global.ROOMS[idRoom][idOtherPlayer].army[idxUnit].x;
+    const y = global.ROOMS[idRoom][idOtherPlayer].army[idxUnit].y
+    const animAttack = {
+        type: "animationAttack",
+        speed: 12,
+        x: x + ((idPlayer === global.ROOMS[idRoom].firstPlayer) ? 0.5 : -0.5),
+        y: y + ((idPlayer === global.ROOMS[idRoom].firstPlayer) ? -0.5 : 0.5)
+    };
+    const animAttackEnemy = {
+        type: "animationAttack",
+        speed: 12,
+        x: x + ((idPlayer === global.ROOMS[idRoom].firstPlayer) ? -0.5 : 0.5),
+        y: y + ((idPlayer === global.ROOMS[idRoom].firstPlayer) ? 0.5 : -0.5)
+    };
+    global.ROOMS[idRoom][idPlayer].animations.push(animAttack);
+    global.ROOMS[idRoom][idOtherPlayer].animations.push(animAttackEnemy);
 }
 
 function attack(req, res, next) {

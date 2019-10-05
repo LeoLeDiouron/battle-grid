@@ -44,6 +44,9 @@ function loadAssets(game) {
     game.load.image('retry', 'assets/images/menu/retry.png');
     // load font
     game.load.bitmapFont('font', 'assets/fonts/font.png', 'assets/fonts/font.xml');
-
+    // load animations
+    game.load.spritesheet('animationHeal', 'assets/animations/animation_heal.png', 260, 260, 4);
+    // game.load.spritesheet('animationAttack', 'assets/animations/animation_attack.png', 260, 260, 4);
+    game.load.spritesheet('animationAttack', 'assets/animations/animation_attack.png', 260, 260, 7);
     return game;
 }

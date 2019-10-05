@@ -1,34 +1,17 @@
-const statsAllUnit = {
-    king: createUnitType("king", 8, 2, 1, 0, 1),
-    peasant: createUnitType("peasant", 5, 2, 2, 0, 1),
-    shieldman: createUnitType("shieldman", 10, 0, 2, 0, 1),
-    soldier: createUnitType("soldier", 6, 3, 2, 0, 1),
-    bowman: createUnitType("bowman", 5, 3, 2, 2, 1),
-    ninja: createUnitType("ninja", 6, 2, 3, 0, 2),
-    doctor: createUnitType("doctor", 7, 1, 2, 1, 1),
-    knight: createUnitType("knight", 12, 4, 2, 0, 1),
-    crossbowman: createUnitType("crossbowman", 7, 2, 1, 5, 2),
-    necromancer: createUnitType("necromancer", 6, 4, 1, 0, 1)
-};
-
 const listUnits = ["peasant", "shieldman", "soldier", "bowman", "ninja", "doctor", "knight", "crossbowman", "necromancer"];
-
-function createUnitType(type, hp, dmg, move, range, nbAttack) {
-    return {
-        type, hp, maxHp: hp, dmg, move, range, nbAttack, maxNbAttack: nbAttack
-    };
-}
 
 function copyJson(json) {
     return JSON.parse(JSON.stringify(json));
 }
 
-function getKingStats(firstPlayer, idxUnit) {
-    const king = copyJson(statsAllUnit.king);
-    king["x"] = 7;
-    king["y"] = (firstPlayer === true) ? 14 : 0;
-    king["idx"] = idxUnit;
-    return king;
+function createUnit(unitType, x, y, idxUnit) {
+    const newUnit = copyJson(global.CONFIG.units[unitType]);
+    newUnit["x"] = x;
+    newUnit["y"] = y;
+    newUnit["idx"] = idxUnit;
+    newUnit["hp"] = newUnit.maxHp;
+    newUnit["nbAttack"] = newUnit.maxNbAttack;
+    return newUnit;
 }
 
 function generateJsonArmy(nbUnits, idRoom, idPlayer) {
@@ -42,11 +25,7 @@ function generateJsonArmy(nbUnits, idRoom, idPlayer) {
 
     for (const unit of listUnits) {
         for (let idx = 0; idx < nbUnits[unit]; idx++) {
-            const newUnit = copyJson(statsAllUnit[unit]);
-            newUnit["x"] = 7 + offset;
-            newUnit["y"] = y;
-            newUnit["idx"] = idxUnit;
-            army.push(newUnit);
+            army.push(createUnit(unit, offset + 7, y, idxUnit));
             offset *= -1;
             if ((nbLines % 2 === 1 && nbUnitOnLine % 2 === 1) || (nbLines % 2 === 0 && nbUnitOnLine % 2 === 0)) {
                 offset += 2;
@@ -65,7 +44,7 @@ function generateJsonArmy(nbUnits, idRoom, idPlayer) {
             }
         }
     }
-    army.push(getKingStats(firstPlayer, idxUnit))
+    army.push(createUnit("king", 7, (firstPlayer === true) ? 14 : 0, idxUnit));
     return army;
 }
 

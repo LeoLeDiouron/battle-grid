@@ -32,6 +32,7 @@
     let idPlayer = null;
     let idRoom = null;
     let statusRoom = 0;
+    let config = null;
     let validateArmy = false;
     let menuItems = initMenuItems();
     let waitingItems = initWaitingItems();
@@ -56,44 +57,11 @@
     let myTurn = null;
     let selectedUnit = null;
     const listUnits = ["peasant", "shieldman", "soldier", "bowman", "ninja", "doctor", "knight", "crossbowman", "necromancer"];
-    const selectionInfoUnit = {
-        peasant: {
-            description: "Pesant: basic unit. (10 gold)",
-            price: 10
-        },
-        shieldman: {
-            description: "Shieldman: a wall with two eyes. (10 gold)",
-            price: 10
-        },
-        bowman: {
-            description: "Bowman: mysterious and pretty accurate. (20 gold)",
-            price: 20
-        },
-        soldier: {
-            description: "Soldier: just a peasant with an armor. (20 gold)",
-            price: 20
-        },
-        ninja: {
-            description: "Ninja: fast. strong. handsome. (30 gold)",
-            price: 30
-        },
-        doctor: {
-            description: "Doctor: here to repay his studies's debt. (30 gold)",
-            price: 30
-        },
-        knight: {
-            description: "Knight: really heavy baby. (40 gold)",
-            price: 40
-        },
-        crossbowman: {
-            description: "Crossbowman: unofficial son of Guillaume Tell. (40 gold)",
-            price: 40
-        },
-        necromancer: {
-            description: "Necromancer: death is never definitive. (50 gold)",
-            price: 50
-        },
-    }
+
+    // about animations
+    listSprite = null;
+    listAnimations = null;
+    nbAnimations = 0;
 
     // about api
     const baseUrl = "/api";
@@ -105,12 +73,12 @@
     }
 
     async function create() {
+        config = sendRequest(baseUrl + "/config", "GET").config;
         idPlayer = sendRequest(baseUrl + "/id_player", "GET").idPlayer;
-        console.log(`id player : ${idPlayer}`);
         displayMenu();
     }
 
-    function update() {
+    async function update() {
         if (idxFrame % 10 == 0) {
             responsive();
             if (idRoom !== null) {
@@ -130,6 +98,10 @@
                 }
                 statusRoom = tmpStatusRoom.status;
                  if (statusRoom === 3) {
+                    while (nbAnimations > 0) {
+                        await sleep(1000);
+                        continue;
+                     }
                     const tmpStatusGame = sendRequest(baseUrl + "/status_game/" + idRoom + "?idPlayer=" + idPlayer, "GET");
                     if (statusGameChanged === null || JSON.stringify(tmpStatusGame) !== JSON.stringify(statusGame)) {
                         statusGameChanged = true;
@@ -144,6 +116,9 @@
                     }
                     checkTurnOver();
                     displayArmies();
+                    if (statusGame.animations.length > 0) {
+                        displayAnimations();
+                    }
                 }
             }
         } else {
@@ -340,7 +315,7 @@
     /* _________________________________ SCENE 2 - SELECTION _________________________________ */
 
     function displaySelection() {
-        money = 200;
+        money = config.round.money;
         army = initalizeArmy();
         // add title
         selectionItems.title = game.add.bitmapText(0, windowHeight / 2 - 300, 'font', 'SELECT YOUR UNITS', 40);
@@ -351,22 +326,7 @@
         // add buttons selection
         let idx = 0 - listUnits.length / 2;
         for (const unit of listUnits) {
-            selectionItems.buttons[unit] = game.add.button(windowWidth / 2 + (idx * 150), windowHeight / 2, unit, () => {displayUnitDetails(unit);});
-            selectionItems.buttons[unit].scale.setTo(0.5, 0.5);
-            // button more
-            selectionItems.buttons[unit + "_more"] = game.add.button(0, 0, "more", () => {addUnit(unit);});
-            selectionItems.buttons[unit + "_more"].scale.setTo(0.15, 0.15);
-            selectionItems.buttons[unit + "_more"].centerX = selectionItems.buttons[unit].centerX;
-            selectionItems.buttons[unit + "_more"].centerY = selectionItems.buttons[unit].centerY - selectionItems.buttons[unit].height / 2 - selectionItems.buttons[unit + "_more"].height / 2 - 10;
-            // button less
-            selectionItems.buttons[unit + "_less"] = game.add.button(0, 0, "less", () => {removeUnit(unit);});
-            selectionItems.buttons[unit + "_less"].scale.setTo(0.15, 0.15);
-            selectionItems.buttons[unit + "_less"].centerX = selectionItems.buttons[unit].centerX;
-            selectionItems.buttons[unit + "_less"].centerY = selectionItems.buttons[unit].centerY + selectionItems.buttons[unit].height / 2 + selectionItems.buttons[unit + "_less"].height / 2 + 10;
-            // number of units
-            selectionItems.text[unit + "_number"] = game.add.bitmapText(0, 0, 'font', "x0", 30);
-            selectionItems.text[unit + "_number"].centerX = selectionItems.buttons[unit].centerX;
-            selectionItems.text[unit + "_number"].centerY = selectionItems.buttons[unit + "_less"].centerY + selectionItems.buttons[unit + "_less"].height / 2 + selectionItems.text[unit + "_number"].height / 2 + 10;
+            addSelectionUnit(unit, idx);
             idx++;
         }
         // add tips
@@ -378,18 +338,37 @@
         selectionItems.buttons['validate'].centerX = windowWidth / 2;
     }
 
+    function addSelectionUnit(unit, idx) {
+        // unit asset
+        selectionItems.buttons[unit] = game.add.button(windowWidth / 2 + (idx * 150), windowHeight / 2, unit, () => {displayUnitDetails(unit);});
+        selectionItems.buttons[unit].scale.setTo(0.5, 0.5);
+        // button more
+        selectionItems.buttons[unit + "_more"] = game.add.button(0, 0, "more", () => {addUnit(unit);});
+        selectionItems.buttons[unit + "_more"].scale.setTo(0.15, 0.15);
+        selectionItems.buttons[unit + "_more"].centerX = selectionItems.buttons[unit].centerX;
+        selectionItems.buttons[unit + "_more"].centerY = selectionItems.buttons[unit].centerY - selectionItems.buttons[unit].height / 2 - selectionItems.buttons[unit + "_more"].height / 2 - 10;
+        // button less
+        selectionItems.buttons[unit + "_less"] = game.add.button(0, 0, "less", () => {removeUnit(unit);});
+        selectionItems.buttons[unit + "_less"].scale.setTo(0.15, 0.15);
+        selectionItems.buttons[unit + "_less"].centerX = selectionItems.buttons[unit].centerX;
+        selectionItems.buttons[unit + "_less"].centerY = selectionItems.buttons[unit].centerY + selectionItems.buttons[unit].height / 2 + selectionItems.buttons[unit + "_less"].height / 2 + 10;
+        // number of units
+        selectionItems.text[unit + "_number"] = game.add.bitmapText(0, 0, 'font', "x0", 30);
+        selectionItems.text[unit + "_number"].centerX = selectionItems.buttons[unit].centerX;
+        selectionItems.text[unit + "_number"].centerY = selectionItems.buttons[unit + "_less"].centerY + selectionItems.buttons[unit + "_less"].height / 2 + selectionItems.text[unit + "_number"].height / 2 + 10;
+        // price on the icon
+        selectionItems.text[unit + "_price"] = game.add.bitmapText(0, 0, 'font', config.units[unit].price, 30);
+        selectionItems.text[unit + "_price"].centerX = selectionItems.buttons[unit + "_less"].centerX + selectionItems.buttons[unit + "_less"].width + 10;
+        selectionItems.text[unit + "_price"].centerY = selectionItems.buttons[unit + "_more"].centerY + 10;
+        selectionItems.text[unit + "_price"].tint = 0xE1C80D;
+    }
+
     function initalizeArmy() {
-        return {
-            peasant: 0,
-            shieldman: 0,
-            soldier: 0,
-            ninja: 0,
-            knight: 0,
-            bowman: 0,
-            doctor: 0,
-            crossbowman: 0,
-            necromancer: 0
-        };
+        const newArmy = {};
+        for (const unit of listUnits) {
+            newArmy[unit] = 0;
+        }
+        return newArmy;
     }
 
     function destroySelection() {
@@ -404,7 +383,7 @@
     }
 
     function displayUnitDetails(unit) {
-        selectionItems.text['tips'].text = selectionInfoUnit[unit].description;
+        selectionItems.text['tips'].text = config.units[unit].description;
         selectionItems.text['tips'].centerX = windowWidth / 2;
     }
 
@@ -416,9 +395,9 @@
     }
 
     function addUnit(unit) {
-        if (validateArmy === false && money >= selectionInfoUnit[unit].price) {
+        if (validateArmy === false && money >= config.units[unit].price) {
             army[unit]++;
-            money -= selectionInfoUnit[unit].price;
+            money -= config.units[unit].price;
             disaplayChange(unit);
         }
     }
@@ -426,7 +405,7 @@
     function removeUnit(unit) {
         if (validateArmy === false && army[unit] > 0) {
             army[unit]--;
-            money += selectionInfoUnit[unit].price;
+            money += config.units[unit].price;
             disaplayChange(unit);
         }
     }
@@ -474,7 +453,7 @@
             gameItems.images.obstacles.push(imgObstacle);
         }
         gameItems.images["fog"] = [];
-        const nextButton = game.add.button(beginX + sizeCell * (sizeGrid - 1), beginY - 10 - sizeCell, "next", () => {skipTurn();});
+        const nextButton = game.add.button(beginX + sizeCell * (sizeGrid) + 10, beginY, "next", () => {skipTurn();});
         nextButton.scale.setTo(sizeCell / nextButton.width, sizeCell / nextButton.height);
         gameItems.buttons["next"] = nextButton;
     }
@@ -484,24 +463,12 @@
         if ("myArmy" in gameItems.buttons && "enemyArmy" in gameItems.buttons) {
             destroyArmies();
         }
-        if ("move" in gameItems.buttons) {
-            destroyButtonsMove();
-        }
-        if ("blocked" in gameItems.buttons) {
-            destroyArrayButtons("blocked");
-        }
-        if ("enemiesBorder" in gameItems.buttons) {
-            destroyArrayButtons("enemiesBorder");
-        }
-        if ("obstacles" in gameItems.images) {
-            destroyArrayImages("obstacles");
-        }
-        if ("ground" in gameItems.images) {
-            destroyArrayImages("ground");
-        }
-        if ("damaged" in gameItems.buttons) {
-            destroyArrayButtons("damaged");
-        }
+        destroyButtonsMove();
+        destroyArrayButtons("blocked");
+        destroyArrayButtons("enemiesBorder");
+        destroyArrayImages("obstacles");
+        destroyArrayImages("ground");
+        destroyArrayButtons("damaged");
         if ("next" in gameItems.buttons) {
             gameItems.buttons["next"].destroy();
         }
@@ -533,6 +500,25 @@
             addUnitButton(unit, "enemyArmy", () => {eventEnemy(unit)})
         }
         applyFog();
+    }
+
+    function displayAnimations() {
+        listSprite = [];
+        listAnimations = [];
+        let idx = 0;
+        for (const animation of statusGame.animations) {
+            const animX = (idPlayer === statusGame.firstPlayer) ? beginX + (animation.x * sizeCell) : beginX + ((14 - animation.x) * sizeCell);
+            const animY = (idPlayer === statusGame.firstPlayer) ? beginY + (animation.y * sizeCell) : beginY + ((14 - animation.y) * sizeCell);
+            if (inVisionOfArmy(animation.x, animation.y) === true) {
+                listSprite.push(game.add.sprite(animX, animY, animation.type, 1));
+                listSprite[idx].scale.setTo(0.17, 0.17);
+                listAnimations.push(listSprite[idx].animations.add(animation.type));
+                listAnimations[idx].onComplete.add(() => {nbAnimations--;}, this);
+                listAnimations[idx].play(animation.speed, false, true);
+                idx++;
+                nbAnimations++;
+            }
+        }
     }
 
     function addUnitButton(unit, army, event) {
@@ -604,14 +590,18 @@
     }
 
     function destroyArrayButtons(type) {
-        for (let idx = 0; idx < gameItems.buttons[type].length; idx++) {
-            gameItems.buttons[type][idx].destroy();
+        if (type in gameItems.buttons) {
+            for (let idx = 0; idx < gameItems.buttons[type].length; idx++) {
+                gameItems.buttons[type][idx].destroy();
+            }
         }
     }
 
     function destroyArrayImages(type) {
-        for (let idx = 0; idx < gameItems.images[type].length; idx++) {
-            gameItems.images[type][idx].destroy();
+        if (type in gameItems.images) {
+            for (let idx = 0; idx < gameItems.images[type].length; idx++) {
+                gameItems.images[type][idx].destroy();
+            }
         }
     }
 
@@ -631,7 +621,7 @@
 
     function event(unit) {
         if (selectedUnit === null || selectedUnit !== unit.idx) {
-            gameItems.text.statsLine.text = `Type: [${unit.type}] HP: [${unit.hp}/${unit.maxHp}] DMG: [${unit.dmg}]`;
+            gameItems.text.statsLine.text = `${unit.type} - HP: [${unit.hp}/${unit.maxHp}] DMG: [${unit.dmg}] NB-ATK: [${unit.nbAttack}]`;
             gameItems.text.statsLine.tint = 0xFFFFFF;
             if (myTurn === true && unit.nbAttack > 0) {
                 manageMove(unit);
@@ -644,7 +634,7 @@
 
     function eventEnemy(unit) {
         if (selectedUnit === null || selectedUnit !== unit.idx * -1) {
-            gameItems.text.statsLine.text = `Type: [${unit.type}] HP: [${unit.hp}/${unit.maxHp}] DMG: [${unit.dmg}]`;
+            gameItems.text.statsLine.text = `${unit.type} - HP: [${unit.hp}/${unit.maxHp}] DMG: [${unit.dmg}] NB-ATK: [${unit.nbAttack}]`;
             gameItems.text.statsLine.tint = 0xFF0000;
             if (myTurn === true) {
                 showRangeEnemy(unit);
@@ -835,18 +825,23 @@
                 const url = `${baseUrl}/turn_over/${idRoom}?idPlayer=${idPlayer}`;
                 sendRequest(url, "GET");
                 gameItems.text["turn"].text = `Enemy's turn - ${statusGame.nbActions}/4`;
+                gameItems.text["turn"].tint = 0xFF0000;
             } else {
                 gameItems.text["turn"].text = `Your turn - ${statusGame.nbActions}/4`;
+                gameItems.text["turn"].tint = 0xFFFFFF;
             }
         } else {
             gameItems.text["turn"].text = `Enemy's turn - ${statusGame.nbActions}/4`;
+            gameItems.text["turn"].tint = 0xFF0000;
         }
     }
 
     function skipTurn() {
-        destroyButtonsMove();
-        const url = `${baseUrl}/turn_over/${idRoom}?idPlayer=${idPlayer}`;
-        sendRequest(url, "GET");
+        if (myTurn === true) {
+            destroyButtonsMove();
+            const url = `${baseUrl}/turn_over/${idRoom}?idPlayer=${idPlayer}`;
+            sendRequest(url, "GET");
+        }
     }
 
     /* _________________________________ SCENE 4 - WINNER _________________________________ */

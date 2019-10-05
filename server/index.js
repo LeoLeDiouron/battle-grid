@@ -1,4 +1,5 @@
 const express = require('express');
+const fs = require('fs');
 const router = express.Router();
 
 // controllers
@@ -13,13 +14,17 @@ const statusGame = require("./controllers/game/statusGame");
 const move = require("./controllers/game/move");
 const attack = require("./controllers/game/attack");
 const turnOver = require("./controllers/game/turnOver");
+const config = require("./controllers/room/config");
 
-// instanciate global rooms
+// instantiate global rooms
 global.ROOMS = {};
+// instantiate config
+global.CONFIG = loadConfig();
 
 // routes
 // get
 router.get("/id_player", generateIdPlayer);
+router.get("/config", config);
 router.get("/create_room", createRoom);
 router.get("/join_room/:idRoom", joinRoom);
 router.get("/random_room", randomRoom);
@@ -38,5 +43,9 @@ status for room
 2: second player here (need to choose army)
 3: round
 */
+
+function loadConfig() {
+    return JSON.parse(fs.readFileSync("./server/config.json"));
+}
 
 module.exports = router;
