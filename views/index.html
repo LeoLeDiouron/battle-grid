@@ -44,6 +44,7 @@
 
     // about selection scene
     let money = null;
+    let nbUnits = null;
     let army = null;
     let myLeader = null;
 
@@ -318,7 +319,11 @@
     /* _________________________________ SCENE 2.1 - SELECTION OF LEADER _________________________________ */
 
     function displaySelectionLeader() {
+        myLeader = null;
         // add title
+        selectionLeaderItems.shadowTitle = game.add.bitmapText(0, windowHeight / 2 - 300 + 3, 'font', 'SELECT YOUR LEADER', 40);
+        selectionLeaderItems.shadowTitle.centerX = windowWidth / 2 + 3;
+        selectionLeaderItems.shadowTitle.tint = 0x0000FF;
         selectionLeaderItems.title = game.add.bitmapText(0, windowHeight / 2 - 300, 'font', 'SELECT YOUR LEADER', 40);
         selectionLeaderItems.title.centerX = windowWidth / 2;
         // add buttons selection
@@ -342,6 +347,7 @@
 
     function destroySelectionLeader() {
         selectionLeaderItems.title.destroy();
+        selectionLeaderItems.shadowTitle.destroy();
         selectionLeaderItems.border.destroy();
         for (const [buttonKey, buttonValue] of Object.entries(selectionLeaderItems.buttons)) {
             selectionLeaderItems.buttons[buttonKey].destroy();
@@ -355,6 +361,7 @@
     function initSelectionLeaderItems() {
         return {
             title: null,
+            shadowTitle: null,
             buttons: {},
             text: {},
             border: null
@@ -390,21 +397,28 @@
     function displaySelection() {
         money = (myLeader === "rich_king") ? config.round.money + 100 : config.round.money;
         army = initalizeArmy();
-        // add title
+        nbUnits = config.round.maxUnits;
+        // add title and shadow title
+        selectionItems.shadowTitle = game.add.bitmapText(0, windowHeight / 2 - 300 + 3, 'font', 'SELECT YOUR UNITS', 40);
+        selectionItems.shadowTitle.centerX = windowWidth / 2 + 3;
+        selectionItems.shadowTitle.tint = 0xFF0000;
         selectionItems.title = game.add.bitmapText(0, windowHeight / 2 - 300, 'font', 'SELECT YOUR UNITS', 40);
         selectionItems.title.centerX = windowWidth / 2;
         // add line money
         selectionItems.text['money'] = game.add.bitmapText(0, windowHeight / 2 - 200, 'font', `${money} gold`, 30);
-        selectionItems.text['money'].centerX = windowWidth / 2;
+        selectionItems.text['money'].centerX = windowWidth / 3;
+        // add line max units
+        selectionItems.text['units'] = game.add.bitmapText(0, windowHeight / 2 - 200, 'font', `Units: ${config.round.maxUnits - nbUnits}/${config.round.maxUnits}`, 30);
+        selectionItems.text['units'].centerX = windowWidth / 3 * 2;
         // add buttons selection
         let idx = 0 - listUnits.length / 2;
         for (const unit of listUnits) {
             addSelectionUnit(unit, idx);
             idx++;
         }
-        // add tips
-        selectionItems.text['tips'] = game.add.bitmapText(0, windowHeight / 2 + 300, 'font', "click on an unit to see its details", 30);
-        selectionItems.text['tips'].centerX = windowWidth / 2;
+        // add description
+        selectionItems.text['description'] = game.add.bitmapText(0, windowHeight / 2 + 300, 'font', "click on an unit to see its details", 30);
+        selectionItems.text['description'].centerX = windowWidth / 2;
         // add button validate
         selectionItems.buttons['validate'] = game.add.button(0, windowHeight - 100, "validate", () => {createArmy()});
         selectionItems.buttons['validate'].scale.setTo(0.2, 0.2);
@@ -446,6 +460,7 @@
 
     function destroySelection() {
         selectionItems.title.destroy();
+        selectionItems.shadowTitle.destroy();
         for (const [buttonKey, buttonValue] of Object.entries(selectionItems.buttons)) {
             selectionItems.buttons[buttonKey].destroy();
         }
@@ -456,21 +471,34 @@
     }
 
     function displayUnitDetails(unit) {
-        selectionItems.text['tips'].text = config.units[unit].description;
-        selectionItems.text['tips'].centerX = windowWidth / 2;
+        selectionItems.text['description'].text = config.units[unit].description;
+        selectionItems.text['description'].centerX = windowWidth / 2;
     }
 
     function disaplayChange(unit) {
         selectionItems.text[unit + "_number"].text = `x${army[unit]}`;
         selectionItems.text[unit + "_number"].centerX = selectionItems.buttons[unit].centerX;
         selectionItems.text['money'].text = `${money} gold`;
-        selectionItems.text['money'].centerX = windowWidth / 2;
+        selectionItems.text['money'].centerX = windowWidth / 3;
+        if (money === 0) {
+            selectionItems.text['money'].tint = 0xFF0000;
+        } else {
+            selectionItems.text['money'].tint = 0xFFFFFF;
+        }
+        selectionItems.text['units'].text = `Units: ${config.round.maxUnits - nbUnits}/${config.round.maxUnits}`;
+        selectionItems.text['units'].centerX = windowWidth / 3 * 2;
+        if (nbUnits === 0) {
+            selectionItems.text['units'].tint = 0xFF0000;
+        }  else {
+            selectionItems.text['units'].tint = 0xFFFFFF;
+        }
     }
 
     function addUnit(unit) {
-        if (validateArmy === false && money >= config.units[unit].price) {
+        if (validateArmy === false && money >= config.units[unit].price && nbUnits > 0) {
             army[unit]++;
             money -= config.units[unit].price;
+            nbUnits--;
             disaplayChange(unit);
         }
     }
@@ -479,6 +507,7 @@
         if (validateArmy === false && army[unit] > 0) {
             army[unit]--;
             money += config.units[unit].price;
+            nbUnits++;
             disaplayChange(unit);
         }
     }
@@ -486,6 +515,7 @@
     function initSelectionItems() {
         return {
             title: null,
+            shadowTitle: null,
             buttons: {},
             text: {}
         };
@@ -876,6 +906,7 @@
 
     function attackEnemy(unit, idxEnemy) {
         destroyButtonsMove();
+        console.log(`idxEnemy: ${idxEnemy}`);
         const url = `${baseUrl}/attack/${idRoom}?idPlayer=${idPlayer}`;
         const body = {
             idx: unit.idx,

@@ -53,7 +53,7 @@ function dealDamages(idRoom, idPlayer, body) {
         if (global.ROOMS[idRoom][idOtherPlayer].army[i].idx === body.idxEnemy) {
             global.ROOMS[idRoom][idOtherPlayer].army[i].hp -= findDmgUnit(global.ROOMS[idRoom][idPlayer].army, body.idx);
             if (global.ROOMS[idRoom][idOtherPlayer].army[i].hp <= 0) {
-                if (global.ROOMS[idRoom][idOtherPlayer].army[i].idx !== 0) {
+                if (body.idxEnemy !== 0) {
                     if (global.ROOMS[idRoom][idOtherPlayer].army[i].type !== "zombie" && global.ROOMS[idRoom][idOtherPlayer].army[i].type !== "necromancer") {
                         necromancerAction(idRoom, idOtherPlayer, i);
                     }
@@ -63,7 +63,9 @@ function dealDamages(idRoom, idPlayer, body) {
                     global.ROOMS[idRoom].status = 4;
                 }
             } else {
-                addAttackAnimation(idRoom, idPlayer, idOtherPlayer, global.ROOMS[idRoom][idOtherPlayer].army[i].idx);
+                console.log(JSON.stringify(global.ROOMS[idRoom][idOtherPlayer].army));
+                console.log('\n');
+                addAttackAnimation(idRoom, idPlayer, idOtherPlayer, body.idxEnemy);
             }
             break;
         }
