@@ -11,8 +11,11 @@ function loadAssets(game) {
     game.load.image('validate', 'assets/images/selection/validate.png');
     game.load.image('more', 'assets/images/selection/more.png');
     game.load.image('less', 'assets/images/selection/less.png');
+    // load leaders
+    game.load.image('rich_king', 'assets/images/leaders/rich_king.png');
+    game.load.image('queen_of_slaves', 'assets/images/leaders/queen_of_slaves.png');
+    game.load.image('ulfrik_the_terror', 'assets/images/leaders/ulfrik_the_terror.png');
     // load units
-    game.load.image('king', 'assets/images/units/king.png');
     game.load.image('peasant', 'assets/images/units/peasant.png');
     game.load.image('shieldman', 'assets/images/units/shieldman.png');
     game.load.image('soldier', 'assets/images/units/soldier.png');
@@ -28,7 +31,7 @@ function loadAssets(game) {
     game.load.image('move', 'assets/images/round/move.png');
     game.load.image('range', 'assets/images/round/range.png');
     game.load.image('blocked', 'assets/images/round/blocked.png');
-    game.load.image('enemyBorder', 'assets/images/round/enemy_border.png');
+    game.load.image('redBorder', 'assets/images/round/enemy_border.png');
     game.load.image('enemyRange', 'assets/images/round/enemy_range.png');
     game.load.image('next', 'assets/images/round/next.png');
     // load background
@@ -46,7 +49,6 @@ function loadAssets(game) {
     game.load.bitmapFont('font', 'assets/fonts/font.png', 'assets/fonts/font.xml');
     // load animations
     game.load.spritesheet('animationHeal', 'assets/animations/animation_heal.png', 260, 260, 4);
-    // game.load.spritesheet('animationAttack', 'assets/animations/animation_attack.png', 260, 260, 4);
     game.load.spritesheet('animationAttack', 'assets/animations/animation_attack.png', 260, 260, 7);
     return game;
 }

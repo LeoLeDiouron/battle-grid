@@ -37,6 +37,7 @@
     let menuItems = initMenuItems();
     let waitingItems = initWaitingItems();
     let joinItems = initJoinItems();
+    let selectionLeaderItems = initSelectionLeaderItems();
     let selectionItems = initSelectionItems();
     let gameItems = initGameItems();
     let winnerItems = initWinnerItems();
@@ -44,6 +45,7 @@
     // about selection scene
     let money = null;
     let army = null;
+    let myLeader = null;
 
     // about graphics (in round)
     const sizeGrid = 15;
@@ -56,6 +58,7 @@
     let statusGameChanged = null;
     let myTurn = null;
     let selectedUnit = null;
+    const listLeaders = ["rich_king", "queen_of_slaves", "ulfrik_the_terror"];
     const listUnits = ["peasant", "shieldman", "soldier", "bowman", "ninja", "doctor", "knight", "crossbowman", "necromancer"];
 
     // about animations
@@ -85,7 +88,7 @@
                 tmpStatusRoom = sendRequest(baseUrl + "/status_room/" + idRoom, "GET");
                 if (tmpStatusRoom.status === 2 && statusRoom === 1) { // two players are here, need to select army
                     destroyWaiting();
-                    displaySelection();
+                    displaySelectionLeader();
                 } else if (tmpStatusRoom.status === 3 && statusRoom === 2) { // two players choosed their army, start game
                     statusGame = sendRequest(baseUrl + "/status_game/" + idRoom + "?idPlayer=" + idPlayer, "GET");
                     destroySelection();
@@ -209,7 +212,7 @@
         idRoom = sendRequest(baseUrl + "/random_room?idPlayer=" + idPlayer, "GET").idRoom;
         if (idRoom !== null) {
             destroyMenu();
-            displaySelection();
+            displaySelectionLeader();
         } else {
             menuItems.text["errorMessage"].text = "No game found, sorry bro.";
             menuItems.text["errorMessage"].tint = 0xFF0000;
@@ -278,7 +281,7 @@
         if (response.status === 0) {
             idRoom = codeRoom;
             destroyJoin();
-            displaySelection();
+            displaySelectionLeader();
         } else {
             joinItems.errorMessage.tint = 0xFFFFFF;
             joinItems.errorMessage.text = response.errorMessage;
@@ -312,10 +315,80 @@
         };
     }
 
-    /* _________________________________ SCENE 2 - SELECTION _________________________________ */
+    /* _________________________________ SCENE 2.1 - SELECTION OF LEADER _________________________________ */
+
+    function displaySelectionLeader() {
+        // add title
+        selectionLeaderItems.title = game.add.bitmapText(0, windowHeight / 2 - 300, 'font', 'SELECT YOUR LEADER', 40);
+        selectionLeaderItems.title.centerX = windowWidth / 2;
+        // add buttons selection
+        let idx = Math.round(0 - listLeaders.length / 2 + 0.5);
+        for (const leader of listLeaders) {
+            addSelectionLeader(leader, idx);
+            idx++;
+        }
+        // add description
+        selectionLeaderItems.text['description'] = game.add.bitmapText(0, windowHeight / 2 + 300, 'font', "click on an leader to see its details", 30);
+        selectionLeaderItems.text['description'].centerX = windowWidth / 2;
+    }
+
+    function addSelectionLeader(leader, idx) {
+        // leader asset
+        selectionLeaderItems.buttons[leader] = game.add.button(0, 0, leader, () => {selectLeader(leader, windowWidth / 2 + (idx * 300), windowHeight / 2);});
+        selectionLeaderItems.buttons[leader].scale.setTo(0.7, 0.7);
+        selectionLeaderItems.buttons[leader].centerX = windowWidth / 2 + (idx * 300);
+        selectionLeaderItems.buttons[leader].centerY = windowHeight / 2;
+    }
+
+    function destroySelectionLeader() {
+        selectionLeaderItems.title.destroy();
+        selectionLeaderItems.border.destroy();
+        for (const [buttonKey, buttonValue] of Object.entries(selectionLeaderItems.buttons)) {
+            selectionLeaderItems.buttons[buttonKey].destroy();
+        }
+        for (const [textKey, textValue] of Object.entries(selectionLeaderItems.text)) {
+            selectionLeaderItems.text[textKey].destroy();
+        }
+        selectionLeaderItems = initSelectionLeaderItems();
+    }
+
+    function initSelectionLeaderItems() {
+        return {
+            title: null,
+            buttons: {},
+            text: {},
+            border: null
+        };
+    }
+
+    function selectLeader(selectedLeader, centerX, centerY) {
+        myLeader = selectedLeader;
+        if (selectionLeaderItems.border !== null) {
+            selectionLeaderItems.border.destroy();
+        }
+        selectionLeaderItems.border = game.add.image(0, 0, "redBorder");
+        selectionLeaderItems.border.scale.setTo(0.7, 0.7);
+        selectionLeaderItems.border.centerX = centerX;
+        selectionLeaderItems.border.centerY = centerY;
+        selectionLeaderItems.text['description'].text = config.leaders[selectedLeader].description;
+        selectionLeaderItems.text['description'].centerX = windowWidth / 2;
+        // add button validate
+        if (!("validate" in selectionLeaderItems.buttons)) {
+            selectionLeaderItems.buttons['validate'] = game.add.button(0, windowHeight - 100, "validate", () => {validateLeader()});
+            selectionLeaderItems.buttons['validate'].scale.setTo(0.2, 0.2);
+            selectionLeaderItems.buttons['validate'].centerX = windowWidth / 2;
+        }
+    }
+
+    function validateLeader() {
+        destroySelectionLeader();
+        displaySelection();
+    }
+
+    /* _________________________________ SCENE 2.2 - SELECTION OF ARMY _________________________________ */
 
     function displaySelection() {
-        money = config.round.money;
+        money = (myLeader === "rich_king") ? config.round.money + 100 : config.round.money;
         army = initalizeArmy();
         // add title
         selectionItems.title = game.add.bitmapText(0, windowHeight / 2 - 300, 'font', 'SELECT YOUR UNITS', 40);
@@ -424,6 +497,7 @@
         delete selectionItems.buttons['validate'];
         const url = `${baseUrl}/create_army/${idRoom}?idPlayer=${idPlayer}`;
         sendRequest(url, "POST", JSON.stringify({
+            leader: myLeader,
             army: army
         }));
     }
@@ -533,7 +607,7 @@
         gameItems.buttons[army][unit.idx] = unitButton;
         // add enemy border
         if (army === "enemyArmy") {
-            const enemyBorder = game.add.button(x, y, "enemyBorder", event);
+            const enemyBorder = game.add.button(x, y, "redBorder", event);
             enemyBorder.scale.setTo(0.15, 0.15);
             gameItems.buttons.enemiesBorder.push(enemyBorder);
         }
@@ -619,10 +693,22 @@
         };
     }
 
+    function modifyName(name) {
+        name = name.charAt(0).toUpperCase() + name.substring(1);
+        while (name.indexOf("_") !== -1) {
+            name = name.replace("_", " ");
+        }
+        return name;
+    }
+
+    function setLineText(unit, color) {
+        gameItems.text.statsLine.text = `${modifyName(unit.type)} - HP: [${unit.hp}/${unit.maxHp}] DMG: [${unit.dmg}] NB-ATK: [${unit.nbAttack}]`;
+        gameItems.text.statsLine.tint = color;
+    }
+
     function event(unit) {
         if (selectedUnit === null || selectedUnit !== unit.idx) {
-            gameItems.text.statsLine.text = `${unit.type} - HP: [${unit.hp}/${unit.maxHp}] DMG: [${unit.dmg}] NB-ATK: [${unit.nbAttack}]`;
-            gameItems.text.statsLine.tint = 0xFFFFFF;
+            setLineText(unit, 0xFFFFFF);
             if (myTurn === true && unit.nbAttack > 0) {
                 manageMove(unit);
                 selectedUnit = unit.idx;
@@ -634,8 +720,7 @@
 
     function eventEnemy(unit) {
         if (selectedUnit === null || selectedUnit !== unit.idx * -1) {
-            gameItems.text.statsLine.text = `${unit.type} - HP: [${unit.hp}/${unit.maxHp}] DMG: [${unit.dmg}] NB-ATK: [${unit.nbAttack}]`;
-            gameItems.text.statsLine.tint = 0xFF0000;
+            setLineText(unit, 0xFF0000);
             if (myTurn === true) {
                 showRangeEnemy(unit);
                 selectedUnit = unit.idx * -1;
@@ -824,14 +909,14 @@
             if (statusGame.nbActions <= 0 || everyUnitHasAttacked() === true) {
                 const url = `${baseUrl}/turn_over/${idRoom}?idPlayer=${idPlayer}`;
                 sendRequest(url, "GET");
-                gameItems.text["turn"].text = `Enemy's turn - ${statusGame.nbActions}/4`;
+                gameItems.text["turn"].text = `Enemy's turn - ${statusGame.nbActions}/${statusGame.maxNbActions}`;
                 gameItems.text["turn"].tint = 0xFF0000;
             } else {
-                gameItems.text["turn"].text = `Your turn - ${statusGame.nbActions}/4`;
+                gameItems.text["turn"].text = `Your turn - ${statusGame.nbActions}/${statusGame.maxNbActions}`;
                 gameItems.text["turn"].tint = 0xFFFFFF;
             }
         } else {
-            gameItems.text["turn"].text = `Enemy's turn - ${statusGame.nbActions}/4`;
+            gameItems.text["turn"].text = `Enemy's turn - ${statusGame.nbActions}/${statusGame.maxNbActions}`;
             gameItems.text["turn"].tint = 0xFF0000;
         }
     }
@@ -893,7 +978,7 @@
         destroyWinnerMenu();
         const response = sendRequest(`${baseUrl}/reinit_room/${idRoom}?idPlayer=${idPlayer}`, "GET");
         if (response.firstToRetry === false) {
-            displaySelection();
+            displaySelectionLeader();
         }
     }
 
@@ -932,7 +1017,7 @@
                 console.log('WAITING');
                 destroyWaiting();
                 displayWaiting();
-            } else if (statusRoom === 2) {
+            } else if (statusRoom === 2) { // penser a un systeme pour leader (if leader = null)
                 console.log('SELECTION');
                 destroySelection();
                 displaySelection();

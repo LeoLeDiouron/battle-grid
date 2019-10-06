@@ -53,7 +53,7 @@ function dealDamages(idRoom, idPlayer, body) {
         if (global.ROOMS[idRoom][idOtherPlayer].army[i].idx === body.idxEnemy) {
             global.ROOMS[idRoom][idOtherPlayer].army[i].hp -= findDmgUnit(global.ROOMS[idRoom][idPlayer].army, body.idx);
             if (global.ROOMS[idRoom][idOtherPlayer].army[i].hp <= 0) {
-                if (global.ROOMS[idRoom][idOtherPlayer].army[i].type !== "king") {
+                if (global.ROOMS[idRoom][idOtherPlayer].army[i].idx !== 0) {
                     if (global.ROOMS[idRoom][idOtherPlayer].army[i].type !== "zombie" && global.ROOMS[idRoom][idOtherPlayer].army[i].type !== "necromancer") {
                         necromancerAction(idRoom, idOtherPlayer, i);
                     }

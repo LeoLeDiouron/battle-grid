@@ -28,7 +28,6 @@ function createRoom(req, res, next) {
     global.ROOMS[idRoom] = {
         status: 1,
         turnPlayer: idPlayer,
-        nbActions: global.CONFIG.round.nbActions,
         winner: null,
         firstPlayer: idPlayer,
         players: [],

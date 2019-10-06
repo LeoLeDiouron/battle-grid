@@ -4,8 +4,13 @@ function copyJson(json) {
     return JSON.parse(JSON.stringify(json));
 }
 
-function createUnit(unitType, x, y, idxUnit) {
-    const newUnit = copyJson(global.CONFIG.units[unitType]);
+function createUnit(unitType, x, y, idxUnit, isLeader) {
+    let newUnit = null;
+    if (isLeader) {
+        newUnit = copyJson(global.CONFIG.leaders[unitType]);
+    } else {
+        newUnit = copyJson(global.CONFIG.units[unitType]);
+    }
     newUnit["x"] = x;
     newUnit["y"] = y;
     newUnit["idx"] = idxUnit;
@@ -14,18 +19,19 @@ function createUnit(unitType, x, y, idxUnit) {
     return newUnit;
 }
 
-function generateJsonArmy(nbUnits, idRoom, idPlayer) {
+function generateJsonArmy(leader, nbUnits, idRoom, idPlayer) {
     const firstPlayer = isFirstPlayer(idRoom, idPlayer)
     const army = [];
-    let idxUnit = 0;
+    let idxUnit = 1;
     let y = (firstPlayer === true) ? 13 : 1;
     let offset = 1;
     let nbLines = 1;
     let nbUnitOnLine = 0;
 
+    army.push(createUnit(leader, 7, (firstPlayer === true) ? 14 : 0, 0, true));
     for (const unit of listUnits) {
         for (let idx = 0; idx < nbUnits[unit]; idx++) {
-            army.push(createUnit(unit, offset + 7, y, idxUnit));
+            army.push(createUnit(unit, offset + 7, y, idxUnit, false));
             offset *= -1;
             if ((nbLines % 2 === 1 && nbUnitOnLine % 2 === 1) || (nbLines % 2 === 0 && nbUnitOnLine % 2 === 0)) {
                 offset += 2;
@@ -44,7 +50,6 @@ function generateJsonArmy(nbUnits, idRoom, idPlayer) {
             }
         }
     }
-    army.push(createUnit("king", 7, (firstPlayer === true) ? 14 : 0, idxUnit));
     return army;
 }
 
@@ -65,12 +70,24 @@ function isFirstPlayer(idRoom, idPlayer) {
     }
 }
 
+function getLeaderOfArmy(idRoom, idPlayer) {
+    for (const unit of global.ROOMS[idRoom][idPlayer].army) {
+        if (unit.idx === 0) {
+            return unit.type;
+        }
+    }
+    return null;
+}
+
 function createArmy(req, res, next) {
+    const leader = req.body.leader;
     const nbUnits = req.body.army;
     const idPlayer = req.query.idPlayer;
     const idRoom = req.params.idRoom;
-    global.ROOMS[idRoom][idPlayer]["army"] = generateJsonArmy(nbUnits, idRoom, idPlayer);
+    global.ROOMS[idRoom][idPlayer]["army"] = generateJsonArmy(leader, nbUnits, idRoom, idPlayer);
+    console.log(JSON.stringify(global.ROOMS[idRoom][idPlayer]["army"]));
     if (checkReady(idRoom) === true) {
+        global.ROOMS[idRoom]["nbActions"] = (getLeaderOfArmy(idRoom, global.ROOMS[idRoom].firstPlayer) === "queen_of_slaves") ? global.CONFIG.round.maxNbActions + 1 : global.CONFIG.round.maxNbActions;
         global.ROOMS[idRoom].status = 3;
     }
     res.send({

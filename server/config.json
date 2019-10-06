@@ -4,8 +4,38 @@
     },
     "round": {
         "money": 200,
-        "nbActions": 4,
+        "maxUnits": 23,
+        "maxNbActions": 4,
         "healDoctor": 2
+    },
+    "leaders": {
+        "rich_king": {
+            "type": "rich_king",
+            "description": "The rich king: you have more money to enroll units in your army.",
+            "maxHp": 6,
+            "dmg": 2,
+            "move": 1,
+            "range": 0,
+            "maxNbAttack": 1
+        },
+        "queen_of_slaves": {
+            "type": "queen_of_slaves",
+            "description": "Queen of slaves: you have 5 points of action (instead of 4).",
+            "maxHp": 5,
+            "dmg": 1,
+            "move": 1,
+            "range": 0,
+            "maxNbAttack": 1
+        },
+        "ulfrik_the_terror": {
+            "type": "ulfrik_the_terror",
+            "description": "Ulfrik the terror: no need bonus, just a beast as leader.",
+            "maxHp": 15,
+            "dmg": 4,
+            "move": 2,
+            "range": 0,
+            "maxNbAttack": 1
+        }
     },
     "units": {
         "peasant": {

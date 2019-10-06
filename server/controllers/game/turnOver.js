@@ -58,6 +58,15 @@ function doctorsAction(idRoom, idPlayer, idOtherPlayer) {
     }
 }
 
+function getLeaderOfArmy(idRoom, idPlayer) {
+    for (const unit of global.ROOMS[idRoom][idPlayer].army) {
+        if (unit.idx === 0) {
+            return unit.type;
+        }
+    }
+    return null;
+}
+
 function turnOver(req, res, next) {
     const idPlayer = req.query.idPlayer;
     const idRoom = req.params.idRoom;
@@ -65,7 +74,7 @@ function turnOver(req, res, next) {
     if (idRoom in global.ROOMS && idPlayer in global.ROOMS[idRoom]) {
         const idOtherPlayer = findOtherPlayer(idRoom, idPlayer);
         global.ROOMS[idRoom].turnPlayer = idOtherPlayer;
-        global.ROOMS[idRoom].nbActions = global.CONFIG.round.nbActions;
+        global.ROOMS[idRoom].nbActions = (getLeaderOfArmy(idRoom, idOtherPlayer) === "queen_of_slaves") ? global.CONFIG.round.maxNbActions + 1 : global.CONFIG.round.maxNbActions;
         doctorsAction(idRoom, idPlayer, idOtherPlayer);
         resetHasAttacked(idRoom, idPlayer, idOtherPlayer);
     }
