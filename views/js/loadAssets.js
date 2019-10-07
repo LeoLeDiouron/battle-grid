@@ -37,12 +37,16 @@ function loadAssets(game) {
     // load background
     game.load.image('fog', 'assets/images/round/fog.png');
     game.load.image('damaged', 'assets/images/round/damaged.png');
-    game.load.image('obstacle', 'assets/images/round/areas/desert/obstacle.png');
-    game.load.image('ground1', 'assets/images/round/areas/desert/ground1.png');
-    game.load.image('ground2', 'assets/images/round/areas/desert/ground2.png');
-    game.load.image('ground3', 'assets/images/round/areas/desert/ground3.png');
-    game.load.image('ground4', 'assets/images/round/areas/desert/ground4.png');
-    game.load.image('ground5', 'assets/images/round/areas/desert/ground5.png');
+    game.load.image('ground1', 'assets/images/round/areas/ground1.png');
+    game.load.image('ground2', 'assets/images/round/areas/ground2.png');
+    game.load.image('ground3', 'assets/images/round/areas/ground3.png');
+    game.load.image('ground4', 'assets/images/round/areas/ground4.png');
+    game.load.image('ground5', 'assets/images/round/areas/ground5.png');
+    // load obstacles
+    game.load.image('tree1', 'assets/images/round/obstacles/tree1.png');
+    game.load.image('tree2', 'assets/images/round/obstacles/tree2.png');
+    game.load.image('rock1', 'assets/images/round/obstacles/rock1.png');
+    game.load.image('rock2', 'assets/images/round/obstacles/rock2.png');
     // load end buttons
     game.load.image('retry', 'assets/images/menu/retry.png');
     // load font

@@ -63,9 +63,7 @@ function dealDamages(idRoom, idPlayer, body) {
                     global.ROOMS[idRoom].status = 4;
                 }
             } else {
-                console.log(JSON.stringify(global.ROOMS[idRoom][idOtherPlayer].army));
-                console.log('\n');
-                addAttackAnimation(idRoom, idPlayer, idOtherPlayer, body.idxEnemy);
+                addAttackAnimation(idRoom, idPlayer, idOtherPlayer, i);
             }
             break;
         }

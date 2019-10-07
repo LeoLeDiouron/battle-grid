@@ -1,7 +1,12 @@
 const alphaNum = "abcdefghijklmnopqrstuvwxyz0123456789";
+const listObstacles = ["tree1", "tree2", "rock1", "rock2"];
 
 function randomNumber(max) {
     return Math.floor(Math.random() * Math.floor(max));
+}
+
+function chooseTypeObstacles() {
+    
 }
 
 function createObstacles() {
@@ -9,10 +14,22 @@ function createObstacles() {
     const nbObstacles = 25;
 
     while (obstacles.length < nbObstacles) {
-        obstacles.push({
-            x: randomNumber(14),
-            y: 4 + randomNumber(7)
-        });
+        const x = randomNumber(14);
+        const y = 4 + randomNumber(7);
+        let isAlreadyIn = false;
+        for (const obstacle of obstacles) {
+            if (x === obstacle.x && y === obstacle.y) {
+                isAlreadyIn = true;
+                break;
+            }
+        }
+        if (isAlreadyIn === false) {
+            obstacles.push({
+                x: x,
+                y: y,
+                type: listObstacles[randomNumber(listObstacles.length)]
+            });
+        }
     }
     return obstacles;
 }

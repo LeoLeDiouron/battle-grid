@@ -552,7 +552,7 @@
         for (const obstacle of statusGame.obstacles) {
             const x = (idPlayer === statusGame.firstPlayer) ? beginX + (obstacle.x * sizeCell) : beginX + ((14 - obstacle.x) * sizeCell);
             const y = (idPlayer === statusGame.firstPlayer) ? beginY + (obstacle.y * sizeCell) : beginY + ((14 - obstacle.y) * sizeCell);
-            const imgObstacle = game.add.image(x, y, "obstacle");
+            const imgObstacle = game.add.image(x, y, obstacle.type);
             imgObstacle.scale.setTo(0.17, 0.17);
             gameItems.images.obstacles.push(imgObstacle);
         }
@@ -906,7 +906,6 @@
 
     function attackEnemy(unit, idxEnemy) {
         destroyButtonsMove();
-        console.log(`idxEnemy: ${idxEnemy}`);
         const url = `${baseUrl}/attack/${idRoom}?idPlayer=${idPlayer}`;
         const body = {
             idx: unit.idx,
