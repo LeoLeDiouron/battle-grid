@@ -1,37 +1,32 @@
+const fs = require('fs');
+
 const alphaNum = "abcdefghijklmnopqrstuvwxyz0123456789";
-const listObstacles = ["tree1", "tree2", "rock1", "rock2"];
+const listTypes = ["wall", "rockAndSword", "deadTree", "house", "animationFireHouse"]
 
 function randomNumber(max) {
     return Math.floor(Math.random() * Math.floor(max));
 }
 
-function chooseTypeObstacles() {
-    
-}
+function loadMap() {
+    const mapIni = fs.readFileSync("./server/map.ini").toString();
+    const map = [];
+    let y = 0;
 
-function createObstacles() {
-    const obstacles = [];
-    const nbObstacles = 25;
-
-    while (obstacles.length < nbObstacles) {
-        const x = randomNumber(14);
-        const y = 4 + randomNumber(7);
-        let isAlreadyIn = false;
-        for (const obstacle of obstacles) {
-            if (x === obstacle.x && y === obstacle.y) {
-                isAlreadyIn = true;
-                break;
+    for (const row of mapIni.split('\n')) {
+        let x = 0;
+        for (const cell of row.split(',')) {
+            if (parseInt(cell) !== 0) {
+                map.push({
+                    x,
+                    y,
+                    type: listTypes[parseInt(cell) - 1]
+                })
             }
+            x++;
         }
-        if (isAlreadyIn === false) {
-            obstacles.push({
-                x: x,
-                y: y,
-                type: listObstacles[randomNumber(listObstacles.length)]
-            });
-        }
+        y++;
     }
-    return obstacles;
+    return map;
 }
 
 function createRoom(req, res, next) {
@@ -48,7 +43,7 @@ function createRoom(req, res, next) {
         winner: null,
         firstPlayer: idPlayer,
         players: [],
-        obstacles: createObstacles()
+        obstacles: loadMap()
     };
     global.ROOMS[idRoom][idPlayer] = {
         animations: []

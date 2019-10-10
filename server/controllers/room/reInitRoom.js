@@ -2,17 +2,26 @@ function randomNumber(max) {
     return Math.floor(Math.random() * Math.floor(max));
 }
 
-function createObstacles() {
-    const obstacles = [];
-    const nbObstacles = 25;
+function loadMap() {
+    const mapIni = fs.readFileSync("./server/map.ini").toString();
+    const map = [];
+    let y = 0;
 
-    while (obstacles.length < nbObstacles) {
-        obstacles.push({
-            x: randomNumber(14),
-            y: 4 + randomNumber(7)
-        });
+    for (const row of mapIni.split('\n')) {
+        let x = 0;
+        for (const cell of row.split(',')) {
+            if (parseInt(cell) !== 0) {
+                map.push({
+                    x,
+                    y,
+                    type: listTypes[parseInt(cell) - 1]
+                })
+            }
+            x++;
+        }
+        y++;
     }
-    return obstacles;
+    return map;
 }
 
 function newRoom(idPlayer) {
@@ -23,7 +32,7 @@ function newRoom(idPlayer) {
         winner: null,
         firstPlayer: idPlayer,
         players: [],
-        obstacles: createObstacles()
+        obstacles: loadMap()
     };
 }
 

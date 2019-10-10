@@ -85,7 +85,6 @@ function createArmy(req, res, next) {
     const idPlayer = req.query.idPlayer;
     const idRoom = req.params.idRoom;
     global.ROOMS[idRoom][idPlayer]["army"] = generateJsonArmy(leader, nbUnits, idRoom, idPlayer);
-    console.log(JSON.stringify(global.ROOMS[idRoom][idPlayer]["army"]));
     if (checkReady(idRoom) === true) {
         global.ROOMS[idRoom]["nbActions"] = (getLeaderOfArmy(idRoom, global.ROOMS[idRoom].firstPlayer) === "queen_of_slaves") ? global.CONFIG.round.maxNbActions + 1 : global.CONFIG.round.maxNbActions;
         global.ROOMS[idRoom].status = 3;

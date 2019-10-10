@@ -552,7 +552,16 @@
         for (const obstacle of statusGame.obstacles) {
             const x = (idPlayer === statusGame.firstPlayer) ? beginX + (obstacle.x * sizeCell) : beginX + ((14 - obstacle.x) * sizeCell);
             const y = (idPlayer === statusGame.firstPlayer) ? beginY + (obstacle.y * sizeCell) : beginY + ((14 - obstacle.y) * sizeCell);
-            const imgObstacle = game.add.image(x, y, obstacle.type);
+            let imgObstacle = null;
+            if (obstacle.type.includes("animation") === false) {
+                imgObstacle = game.add.image(x, y, obstacle.type);
+            } else {
+                console.log(obstacle.type);
+                imgObstacle = game.add.sprite(x, y, obstacle.type, 1);
+                imgObstacle.scale.setTo(0.17, 0.17);
+                const animation = imgObstacle.animations.add(obstacle.type);
+                animation.play(3, true);
+            }
             imgObstacle.scale.setTo(0.17, 0.17);
             gameItems.images.obstacles.push(imgObstacle);
         }
@@ -964,7 +973,7 @@
     function displayWinner(idWinner) {
         // add title and icon
         winnerItems.title = game.add.bitmapText(0, 0, 'font', '', 40);
-        winnerItems.icon = game.add.image(0, 0, "king");
+        winnerItems.icon = game.add.image(0, 0, myLeader);
         if (idWinner === idPlayer) {
             winnerItems.title.text = "YOU WIN !";
             winnerItems.icon.scale.setTo(0.5, 0.5);

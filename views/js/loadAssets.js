@@ -43,10 +43,12 @@ function loadAssets(game) {
     game.load.image('ground4', 'assets/images/round/areas/ground4.png');
     game.load.image('ground5', 'assets/images/round/areas/ground5.png');
     // load obstacles
-    game.load.image('tree1', 'assets/images/round/obstacles/tree1.png');
-    game.load.image('tree2', 'assets/images/round/obstacles/tree2.png');
-    game.load.image('rock1', 'assets/images/round/obstacles/rock1.png');
-    game.load.image('rock2', 'assets/images/round/obstacles/rock2.png');
+    game.load.image('void', 'assets/images/round/obstacles/void.png');
+    game.load.image('tree', 'assets/images/round/obstacles/tree.png');
+    game.load.image('deadTree', 'assets/images/round/obstacles/dead_tree.png');
+    game.load.image('house', 'assets/images/round/obstacles/house.png');
+    game.load.image('rockAndSword', 'assets/images/round/obstacles/rock_and_sword.png');
+    game.load.image('wall', 'assets/images/round/obstacles/wall.png');
     // load end buttons
     game.load.image('retry', 'assets/images/menu/retry.png');
     // load font
@@ -54,5 +56,6 @@ function loadAssets(game) {
     // load animations
     game.load.spritesheet('animationHeal', 'assets/animations/animation_heal.png', 260, 260, 4);
     game.load.spritesheet('animationAttack', 'assets/animations/animation_attack.png', 260, 260, 7);
+    game.load.spritesheet('animationFireHouse', 'assets/animations/animation_fire_house.png', 260, 260, 4);
     return game;
 }
