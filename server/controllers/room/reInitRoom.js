@@ -1,3 +1,5 @@
+const fs = require('fs');
+
 function randomNumber(max) {
     return Math.floor(Math.random() * Math.floor(max));
 }

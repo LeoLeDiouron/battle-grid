@@ -3,10 +3,10 @@
 
     },
     "round": {
-        "money": 200,
-        "maxUnits": 23,
-        "maxNbActions": 4,
-        "healDoctor": 2
+        "money": 300,
+        "maxUnits": 20,
+        "maxNbActions": 2,
+        "healDoctor": 1
     },
     "leaders": {
         "rich_king": {
@@ -20,7 +20,7 @@
         },
         "queen_of_slaves": {
             "type": "queen_of_slaves",
-            "description": "Queen of slaves: you have 5 points of action (instead of 4).",
+            "description": "Queen of slaves: you can play a thrid time per round.",
             "maxHp": 5,
             "dmg": 1,
             "move": 1,
@@ -30,17 +30,17 @@
         "ulfrik_the_terror": {
             "type": "ulfrik_the_terror",
             "description": "Ulfrik the terror: no need bonus, just a beast as leader.",
-            "maxHp": 15,
+            "maxHp": 20,
             "dmg": 4,
             "move": 2,
             "range": 0,
-            "maxNbAttack": 1
+            "maxNbAttack": 2
         }
     },
     "units": {
         "peasant": {
             "type": "peasant",
-            "description": "Pesant: basic unit. (10 gold)",
+            "description": "Pesant: basic unit.",
             "maxHp": 5,
             "dmg": 2,
             "move": 2,
@@ -50,91 +50,83 @@
         },
         "shieldman": {
             "type": "shieldman",
-            "description": "Shieldman: a wall with two eyes. (10 gold)",
+            "description": "Shieldman: a wall with two eyes.",
             "maxHp": 12,
-            "dmg": 0,
-            "move": 2,
-            "range": 0,
-            "maxNbAttack": 1,
-            "price": 10
-        },
-        "soldier": {
-            "type": "soldier",
-            "description": "Soldier: just a peasant with an armor. (20 gold)",
-            "maxHp": 6,
-            "dmg": 3,
+            "dmg": 1,
             "move": 2,
             "range": 0,
             "maxNbAttack": 1,
             "price": 20
         },
+        "soldier": {
+            "type": "soldier",
+            "description": "Soldier: just a peasant with an armor.",
+            "maxHp": 7,
+            "dmg": 2,
+            "move": 2,
+            "range": 0,
+            "maxNbAttack": 2,
+            "price": 30
+        },
         "bowman": {
             "type": "bowman",
-            "description": "Bowman: mysterious and pretty accurate. (20 gold)",
+            "description": "Bowman: mysterious and pretty accurate.",
             "maxHp": 5,
             "dmg": 3,
             "move": 2,
             "range": 2,
             "maxNbAttack": 1,
-            "price": 20
+            "price": 40
         },
         "ninja": {
             "type": "ninja",
-            "description": "Ninja: fast. strong. handsome. (30 gold)",
+            "description": "Ninja: fast. strong. handsome.",
             "maxHp": 6,
             "dmg": 2,
             "move": 3,
             "range": 0,
             "maxNbAttack": 2,
-            "price": 30
+            "price": 50
+        },
+        "crossbowman": {
+            "type": "crossbowman",
+            "description": "Crossbowman: unofficial son of Guillaume Tell.",
+            "maxHp": 6,
+            "dmg": 4,
+            "move": 1,
+            "range": 5,
+            "maxNbAttack": 1,
+            "price": 60
         },
         "doctor": {
             "type": "doctor",
-            "description": "Doctor: here to repay his studies's debt. (30 gold)",
+            "description": "Doctor: here to repay his studies's debt.",
             "maxHp": 7,
             "dmg": 1,
             "move": 2,
-            "range": 1,
+            "range": 0,
             "maxNbAttack": 1,
-            "price": 30
+            "price": 70
         },
         "knight": {
             "type": "knight",
-            "description": "Knight: really heavy baby. (40 gold)",
-            "maxHp": 12,
+            "description": "Knight: really heavy baby.",
+            "maxHp": 14,
             "dmg": 4,
             "move": 2,
             "range": 0,
             "maxNbAttack": 1,
-            "price": 40
-        },
-        "crossbowman": {
-            "type": "crossbowman",
-            "description": "Crossbowman: unofficial son of Guillaume Tell. (40 gold)",
-            "maxHp": 7,
-            "dmg": 2,
-            "move": 1,
-            "range": 5,
-            "maxNbAttack": 2,
-            "price": 40
+            "price": 80
         },
         "necromancer": {
             "type": "necromancer",
-            "description": "Necromancer: death is never definitive. (50 gold)",
-            "maxHp": 6,
+            "description": "Necromancer: death is never definitive.",
+            "maxHp": 8,
             "dmg": 5,
             "move": 1,
             "range": 0,
             "maxNbAttack": 1,
-            "price": 50
-        },
-        "king": {
-            "type": "king",
-            "maxHp": 8,
-            "dmg": 2,
-            "move": 1,
-            "range": 0,
-            "maxNbAttack": 1
+            "price": 90
         },
         "zombie": {
             "type": "zombie",
@@ -142,7 +134,7 @@
             "dmg": 1,
             "move": 1,
             "range": 0,
-            "maxNbAttack": 1
+            "maxNbAttack": 3
         }
     }
 }
