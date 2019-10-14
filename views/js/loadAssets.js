@@ -34,6 +34,7 @@ function loadAssets(game) {
     game.load.image('redBorder', 'assets/images/round/enemy_border.png');
     game.load.image('enemyRange', 'assets/images/round/enemy_range.png');
     game.load.image('next', 'assets/images/round/next.png');
+    game.load.image('yourTurn', 'assets/images/round/your_turn.png');
     // load background
     game.load.image('fog', 'assets/images/round/fog.png');
     game.load.image('damaged', 'assets/images/round/damaged.png');
@@ -57,5 +58,6 @@ function loadAssets(game) {
     game.load.spritesheet('animationHeal', 'assets/animations/animation_heal.png', 260, 260, 4);
     game.load.spritesheet('animationAttack', 'assets/animations/animation_attack.png', 260, 260, 7);
     game.load.spritesheet('animationFireHouse', 'assets/animations/animation_fire_house.png', 260, 260, 4);
+    game.load.spritesheet('animationYourTurn', 'assets/animations/animation_your_turn.png', 380, 340, 6);
     return game;
 }

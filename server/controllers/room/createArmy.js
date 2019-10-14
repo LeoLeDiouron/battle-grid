@@ -15,7 +15,7 @@ function createUnit(unitType, x, y, idxUnit, isLeader) {
     newUnit["y"] = y;
     newUnit["idx"] = idxUnit;
     newUnit["hp"] = newUnit.maxHp;
-    newUnit["nbAttack"] = newUnit.maxNbAttack;
+    newUnit["hasAttacked"] = false;
     return newUnit;
 }
 

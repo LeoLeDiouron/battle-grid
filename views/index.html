@@ -53,6 +53,7 @@
     const sizeCell = 45;
     const beginX = (windowWidth / 2) - (sizeCell * sizeGrid / 2);
     const beginY = (windowHeight / 2) - (sizeCell * sizeGrid / 2);
+    let beginTurn = null;
 
     // about gameplay
     let statusGame = null;
@@ -114,6 +115,9 @@
                     }
                     statusGame = tmpStatusGame;
                     if (statusGame.turnPlayer === idPlayer) {
+                        if (myTurn === null || myTurn === false) {
+                            beginTurn = true;
+                        }
                         myTurn = true;
                     } else {
                         myTurn = false;
@@ -613,6 +617,10 @@
             addUnitButton(unit, "enemyArmy", () => {eventEnemy(unit)})
         }
         applyFog();
+        if (beginTurn === true) {
+            displayYourTurn();
+            beginTurn = false;
+        }
     }
 
     function displayAnimations() {
@@ -651,7 +659,7 @@
             gameItems.buttons.enemiesBorder.push(enemyBorder);
         }
         // add blocked icon
-        if (unit.nbAttack === 0) {
+        if (unit.hasAttacked === true) {
             const blockedButton = game.add.button(x, y, "blocked", event);
             blockedButton.scale.setTo(0.17, 0.17);
             gameItems.buttons.blocked.push(blockedButton);
@@ -686,7 +694,7 @@
                     const fogY = (idPlayer === statusGame.firstPlayer) ? beginY + (y * sizeCell) : beginY + ((14 - y) * sizeCell);
                     const imgFog = game.add.image(fogX, fogY, "fog");
                     imgFog.scale.setTo(0.17, 0.17);
-                    imgFog.alpha = 0.7;
+                    imgFog.alpha = 0.8;
                     gameItems.images.fog.push(imgFog);
                 }
             }
@@ -748,7 +756,7 @@
     function event(unit) {
         if (selectedUnit === null || selectedUnit !== unit.idx) {
             setLineText(unit, 0xFFFFFF);
-            if (myTurn === true && unit.nbAttack > 0) {
+            if (myTurn === true && unit.hasAttacked === false) {
                 manageMove(unit);
                 selectedUnit = unit.idx;
             }
@@ -936,7 +944,7 @@
 
     function everyUnitHasAttacked() {
         for (const unit of statusGame.myArmy) {
-            if (unit.nbAttack > 0) {
+            if (unit.hasAttacked === false) {
                 return false;
             }
         }
@@ -966,6 +974,16 @@
             const url = `${baseUrl}/turn_over/${idRoom}?idPlayer=${idPlayer}`;
             sendRequest(url, "GET");
         }
+    }
+
+    function displayYourTurn() {
+        const yourTurn = game.add.sprite(0, 0, 'animationYourTurn', 1);
+        yourTurn.scale.setTo(0.5, 0.5)
+        yourTurn.centerX = windowWidth / 2;
+        yourTurn.centerY = windowHeight / 2;
+        // sleep ?
+        const animation = yourTurn.animations.add('yourTurn');
+        animation.play(6, false, true);
     }
 
     /* _________________________________ SCENE 4 - WINNER _________________________________ */
