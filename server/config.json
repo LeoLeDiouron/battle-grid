@@ -31,10 +31,10 @@
             "type": "ulfrik_the_terror",
             "description": "Ulfrik the terror: no need bonus, just a beast as leader.",
             "maxHp": 20,
-            "dmg": 4,
+            "dmg": 5,
             "move": 2,
             "range": 0,
-            "maxNbAttack": 2
+            "maxNbAttack": 1
         }
     },
     "units": {
@@ -65,7 +65,7 @@
             "dmg": 2,
             "move": 2,
             "range": 0,
-            "maxNbAttack": 2,
+            "maxNbAttack": 1,
             "price": 30
         },
         "bowman": {
@@ -85,7 +85,7 @@
             "dmg": 2,
             "move": 3,
             "range": 0,
-            "maxNbAttack": 2,
+            "maxNbAttack": 1,
             "price": 50
         },
         "crossbowman": {
@@ -134,7 +134,7 @@
             "dmg": 1,
             "move": 1,
             "range": 0,
-            "maxNbAttack": 3
+            "maxNbAttack": 1
         }
     }
 }
