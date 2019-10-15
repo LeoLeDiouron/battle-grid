@@ -421,8 +421,11 @@
             idx++;
         }
         // add description
-        selectionItems.text['description'] = game.add.bitmapText(0, windowHeight / 2 + 300, 'font', "click on an unit to see its details", 30);
+        selectionItems.text['description'] = game.add.bitmapText(0, windowHeight / 2 + 230, 'font', "click on an unit to see its details", 30);
         selectionItems.text['description'].centerX = windowWidth / 2;
+        selectionItems.text['bonus'] = game.add.bitmapText(0, windowHeight / 2 + 260, 'font', "", 30);
+        selectionItems.text['bonus'].centerX = windowWidth / 2;
+        selectionItems.text['bonus'].tint = 0xE1C80D;
         // add button validate
         selectionItems.buttons['validate'] = game.add.button(0, windowHeight - 100, "validate", () => {createArmy()});
         selectionItems.buttons['validate'].scale.setTo(0.2, 0.2);
@@ -431,7 +434,7 @@
 
     function addSelectionUnit(unit, idx) {
         // unit asset
-        selectionItems.buttons[unit] = game.add.button(windowWidth / 2 + (idx * 150), windowHeight / 2, unit, () => {displayUnitDetails(unit);});
+        selectionItems.buttons[unit] = game.add.button(windowWidth / 2 + (idx * 150), windowHeight / 2 - 50, unit, () => {displayUnitDetails(unit);});
         selectionItems.buttons[unit].scale.setTo(0.5, 0.5);
         // button more
         selectionItems.buttons[unit + "_more"] = game.add.button(0, 0, "more", () => {addUnit(unit);});
@@ -471,12 +474,18 @@
         for (const [textKey, textValue] of Object.entries(selectionItems.text)) {
             selectionItems.text[textKey].destroy();
         }
+        for (const [imageKey, imageValue] of Object.entries(selectionItems.images)) {
+            selectionItems.images[imageKey].destroy();
+        }
         selectionItems = initSelectionItems();
     }
 
     function displayUnitDetails(unit) {
-        selectionItems.text['description'].text = config.units[unit].description;
+        const stats = `(HP [${config.units[unit].maxHp}] DMG [${config.units[unit].dmg}] RNG [${config.units[unit].move + config.units[unit].range}])`
+        selectionItems.text['description'].text = config.units[unit].description + ' ' + stats;
         selectionItems.text['description'].centerX = windowWidth / 2;
+        selectionItems.text['bonus'].text = config.units[unit].bonus;
+        selectionItems.text['bonus'].centerX = windowWidth / 2;
     }
 
     function disaplayChange(unit) {
@@ -521,7 +530,8 @@
             title: null,
             shadowTitle: null,
             buttons: {},
-            text: {}
+            text: {},
+            images: {}
         };
     }
 
@@ -529,6 +539,9 @@
         validateArmy = true;
         selectionItems.buttons['validate'].destroy();
         delete selectionItems.buttons['validate'];
+        selectionItems.images['validated'] = game.add.image(0, windowHeight - 100, "validated");
+        selectionItems.images['validated'].scale.setTo(0.2, 0.2);
+        selectionItems.images['validated'].centerX = windowWidth / 2;
         const url = `${baseUrl}/create_army/${idRoom}?idPlayer=${idPlayer}`;
         sendRequest(url, "POST", JSON.stringify({
             leader: myLeader,
@@ -644,6 +657,9 @@
 
     function addUnitButton(unit, army, event) {
         if (inVisionOfArmy(unit.x, unit.y) === false) {
+            return;
+        }
+        if (army === "enemyArmy" && unit.type === "ninja" && unit.invisible === true) {
             return;
         }
         const x = (idPlayer === statusGame.firstPlayer) ? beginX + (unit.x * sizeCell) : beginX + ((14 - unit.x) * sizeCell);
@@ -978,12 +994,10 @@
 
     function displayYourTurn() {
         const yourTurn = game.add.sprite(0, 0, 'animationYourTurn', 1);
-        // yourTurn.scale.setTo(0.7, 0.5)
         yourTurn.centerX = windowWidth / 2;
         yourTurn.centerY = windowHeight / 2;
-        // sleep ?
         const animation = yourTurn.animations.add('yourTurn');
-        animation.play(5, false, true);
+        animation.play(7, false, true);
     }
 
     /* _________________________________ SCENE 4 - WINNER _________________________________ */

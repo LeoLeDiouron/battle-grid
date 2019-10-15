@@ -13,8 +13,12 @@ function findOtherPlayer(idRoom, idPlayer) {
 
 function setHasAttacked(idRoom, idPlayer, body) {
     for (let i = 0; i < global.ROOMS[idRoom][idPlayer].army.length; i++) {
-        if (global.ROOMS[idRoom][idPlayer].army[i].idx === body.idx) {
+        const unit = global.ROOMS[idRoom][idPlayer].army[i];
+        if (unit.idx === body.idx) {
             global.ROOMS[idRoom][idPlayer].army[i].hasAttacked = true;
+            if (unit.type === "ninja" && unit.invisible === true) {
+                global.ROOMS[idRoom][idPlayer].army[i].invisible = false;
+            }
         }
     }
 }

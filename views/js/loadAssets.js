@@ -9,6 +9,7 @@ function loadAssets(game) {
     game.load.image('back', 'assets/images/menu/back.png');
     // load selection buttons
     game.load.image('validate', 'assets/images/selection/validate.png');
+    game.load.image('validated', 'assets/images/selection/validated.png');
     game.load.image('more', 'assets/images/selection/more.png');
     game.load.image('less', 'assets/images/selection/less.png');
     // load leaders

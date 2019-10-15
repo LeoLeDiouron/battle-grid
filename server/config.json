@@ -38,6 +38,7 @@
         "peasant": {
             "type": "peasant",
             "description": "Pesant: basic unit.",
+            "bonus": "",
             "maxHp": 5,
             "dmg": 2,
             "move": 2,
@@ -47,6 +48,7 @@
         "shieldman": {
             "type": "shieldman",
             "description": "Shieldman: a wall with two eyes.",
+            "bonus": "can be used as obstacle",
             "maxHp": 12,
             "dmg": 1,
             "move": 2,
@@ -56,15 +58,17 @@
         "soldier": {
             "type": "soldier",
             "description": "Soldier: just a peasant with an armor.",
+            "bonus": "",
             "maxHp": 7,
             "dmg": 2,
-            "move": 2,
+            "move": 3,
             "range": 0,
             "price": 30
         },
         "bowman": {
             "type": "bowman",
             "description": "Bowman: mysterious and pretty accurate.",
+            "bonus": "",
             "maxHp": 5,
             "dmg": 3,
             "move": 2,
@@ -74,15 +78,18 @@
         "ninja": {
             "type": "ninja",
             "description": "Ninja: fast. strong. handsome.",
+            "bonus": "is invisible until he attacks",
             "maxHp": 6,
             "dmg": 2,
-            "move": 3,
+            "move": 2,
             "range": 0,
-            "price": 50
+            "price": 50,
+            "invisible": true
         },
         "crossbowman": {
             "type": "crossbowman",
             "description": "Crossbowman: unofficial son of Guillaume Tell.",
+            "bonus": "very long range",
             "maxHp": 6,
             "dmg": 4,
             "move": 1,
@@ -92,6 +99,7 @@
         "doctor": {
             "type": "doctor",
             "description": "Doctor: here to repay his studies's debt.",
+            "bonus": "at the end of your turn, heals (1HP) all your units in his range",
             "maxHp": 7,
             "dmg": 1,
             "move": 2,
@@ -101,6 +109,7 @@
         "knight": {
             "type": "knight",
             "description": "Knight: really heavy baby.",
+            "bonus": "",
             "maxHp": 14,
             "dmg": 4,
             "move": 2,
@@ -110,6 +119,7 @@
         "necromancer": {
             "type": "necromancer",
             "description": "Necromancer: death is never definitive.",
+            "bonus": "when one of your unit dies, respawns as a zombie",
             "maxHp": 8,
             "dmg": 5,
             "move": 1,
