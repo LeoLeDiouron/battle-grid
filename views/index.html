@@ -978,12 +978,12 @@
 
     function displayYourTurn() {
         const yourTurn = game.add.sprite(0, 0, 'animationYourTurn', 1);
-        yourTurn.scale.setTo(0.5, 0.5)
+        // yourTurn.scale.setTo(0.7, 0.5)
         yourTurn.centerX = windowWidth / 2;
         yourTurn.centerY = windowHeight / 2;
         // sleep ?
         const animation = yourTurn.animations.add('yourTurn');
-        animation.play(6, false, true);
+        animation.play(5, false, true);
     }
 
     /* _________________________________ SCENE 4 - WINNER _________________________________ */

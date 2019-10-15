@@ -58,6 +58,6 @@ function loadAssets(game) {
     game.load.spritesheet('animationHeal', 'assets/animations/animation_heal.png', 260, 260, 4);
     game.load.spritesheet('animationAttack', 'assets/animations/animation_attack.png', 260, 260, 7);
     game.load.spritesheet('animationFireHouse', 'assets/animations/animation_fire_house.png', 260, 260, 4);
-    game.load.spritesheet('animationYourTurn', 'assets/animations/animation_your_turn.png', 380, 340, 6);
+    game.load.spritesheet('animationYourTurn', 'assets/animations/animation_your_turn.png', 345, 195, 11);
     return game;
 }
