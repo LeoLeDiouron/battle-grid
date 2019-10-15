@@ -573,7 +573,6 @@
             if (obstacle.type.includes("animation") === false) {
                 imgObstacle = game.add.image(x, y, obstacle.type);
             } else {
-                console.log(obstacle.type);
                 imgObstacle = game.add.sprite(x, y, obstacle.type, 1);
                 imgObstacle.scale.setTo(0.17, 0.17);
                 const animation = imgObstacle.animations.add(obstacle.type);
