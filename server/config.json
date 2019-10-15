@@ -55,16 +55,6 @@
             "range": 0,
             "price": 20
         },
-        "soldier": {
-            "type": "soldier",
-            "description": "Soldier: just a peasant with an armor.",
-            "bonus": "",
-            "maxHp": 7,
-            "dmg": 2,
-            "move": 3,
-            "range": 0,
-            "price": 30
-        },
         "bowman": {
             "type": "bowman",
             "description": "Bowman: mysterious and pretty accurate.",
@@ -73,6 +63,16 @@
             "dmg": 3,
             "move": 2,
             "range": 2,
+            "price": 30
+        },
+        "soldier": {
+            "type": "soldier",
+            "description": "Soldier: just a peasant with an armor.",
+            "bonus": "",
+            "maxHp": 8,
+            "dmg": 3,
+            "move": 3,
+            "range": 0,
             "price": 40
         },
         "ninja": {
@@ -80,7 +80,7 @@
             "description": "Ninja: fast. strong. handsome.",
             "bonus": "is invisible until he attacks",
             "maxHp": 6,
-            "dmg": 2,
+            "dmg": 3,
             "move": 2,
             "range": 0,
             "price": 50,
@@ -90,7 +90,7 @@
             "type": "crossbowman",
             "description": "Crossbowman: unofficial son of Guillaume Tell.",
             "bonus": "very long range",
-            "maxHp": 6,
+            "maxHp": 8,
             "dmg": 4,
             "move": 1,
             "range": 5,
@@ -101,7 +101,7 @@
             "description": "Doctor: here to repay his studies's debt.",
             "bonus": "at the end of your turn, heals (1HP) all your units in his range",
             "maxHp": 7,
-            "dmg": 1,
+            "dmg": 2,
             "move": 2,
             "range": 0,
             "price": 70
@@ -110,7 +110,7 @@
             "type": "knight",
             "description": "Knight: really heavy baby.",
             "bonus": "",
-            "maxHp": 14,
+            "maxHp": 12,
             "dmg": 4,
             "move": 2,
             "range": 0,
@@ -121,14 +121,14 @@
             "description": "Necromancer: death is never definitive.",
             "bonus": "when one of your unit dies, respawns as a zombie",
             "maxHp": 8,
-            "dmg": 5,
+            "dmg": 4,
             "move": 1,
-            "range": 0,
+            "range": 1,
             "price": 90
         },
         "zombie": {
             "type": "zombie",
-            "maxHp": 6,
+            "maxHp": 5,
             "dmg": 1,
             "move": 1,
             "range": 0

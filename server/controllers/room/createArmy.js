@@ -1,4 +1,4 @@
-const listUnits = ["peasant", "shieldman", "soldier", "bowman", "ninja", "doctor", "knight", "crossbowman", "necromancer"];
+const listUnits = ["peasant", "shieldman", "bowman", "soldier", "ninja", "doctor", "knight", "crossbowman", "necromancer"];
 
 function copyJson(json) {
     return JSON.parse(JSON.stringify(json));
