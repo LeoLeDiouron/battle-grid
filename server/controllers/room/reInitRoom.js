@@ -1,5 +1,7 @@
 const fs = require('fs');
 
+const listTypes = ["wall", "rockAndSword", "deadTree", "house", "animationFireHouse"]
+
 function randomNumber(max) {
     return Math.floor(Math.random() * Math.floor(max));
 }

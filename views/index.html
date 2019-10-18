@@ -598,6 +598,7 @@
         destroyArrayImages("obstacles");
         destroyArrayImages("ground");
         destroyArrayButtons("damaged");
+        destroyYourTurn();
         if ("next" in gameItems.buttons) {
             gameItems.buttons["next"].destroy();
         }
@@ -655,17 +656,23 @@
     }
 
     function addUnitButton(unit, army, event) {
+        let opacity = 1;
         if (inVisionOfArmy(unit.x, unit.y) === false) {
             return;
         }
-        if (army === "enemyArmy" && unit.type === "ninja" && unit.invisible === true) {
-            return;
+        if (unit.type === "ninja" && unit.invisible === true) {
+            if (army === "enemyArmy") {
+                return;
+            } else {
+                opacity = 0.5;
+            }
         }
         const x = (idPlayer === statusGame.firstPlayer) ? beginX + (unit.x * sizeCell) : beginX + ((14 - unit.x) * sizeCell);
         const y = (idPlayer === statusGame.firstPlayer) ?  beginY  + (unit.y * sizeCell) : beginY  + ((14 - unit.y) * sizeCell);
         // add sprite unit
         const unitButton = game.add.button(x, y, unit.type, event);
         unitButton.scale.setTo(0.17, 0.17);
+        unitButton.alpha = opacity;
         gameItems.buttons[army][unit.idx] = unitButton;
         // add enemy border
         if (army === "enemyArmy") {
@@ -751,7 +758,11 @@
             graphics: null,
             buttons: {},
             text: {},
-            images: {}
+            images: {},
+            yourTurnAnimation: {
+                sprite: null,
+                anim: null
+            }
         };
     }
 
@@ -811,6 +822,19 @@
         return false;
     }
 
+    function isOnShieldman(x, y) {
+        for (const enemy of statusGame.enemyArmy) {
+            if (x === enemy.x && y === enemy.y) {
+                if (enemy.type === 'shieldman') {
+                    return true;
+                } else {
+                    return false;
+                }
+            }
+        }
+        return false;
+    }
+
     function isOnEnemy(offsetX, offsetY) {
         for (const unit of statusGame.enemyArmy) {
             if (unit.x === offsetX && unit.y === offsetY) {
@@ -830,11 +854,12 @@
         const y = (yTmp < offsetY) ? 1 : -1;
 
         while (xTmp !== offsetX || yTmp !== offsetY) {
-            if (isOnObstacle(xTmp, yTmp) === true) {
+            if (isOnObstacle(xTmp, yTmp) === true || isOnShieldman(xTmp, yTmp) === true) {
                 return 1;
             } else if (isMove === true) {
-                const status = (unit.type === "bowman" || unit.type === "crossbowman" || unit.type === "doctor") ? 2 : 1;
-                if ((xTmp !== unit.x || yTmp !== unit.y) && isOnEnemy(xTmp, yTmp) !== -1) {
+                const status = (unit.type === "bowman" || unit.type === "crossbowman") ? 2 : 1;
+                const idxEnemy = isOnEnemy(xTmp, yTmp);
+                if ((xTmp !== unit.x || yTmp !== unit.y) && idxEnemy !== -1) {
                     return status;
                 } else if (isOnAllie(xTmp, yTmp, unit, inMyArmy) === true) {
                     return status;
@@ -883,20 +908,21 @@
         gameItems.buttons["move"] = [];
         for (let offsetX = unit.x - (unit.move + unit.range); offsetX <= unit.x + (unit.move + unit.range); offsetX++) {
             for (let offsetY = unit.y - (unit.move + unit.range); offsetY <= unit.y + (unit.move + unit.range); offsetY++) {
-                const statusBehindObastacle = behindObstacleOrEnemy(offsetX, offsetY, unit, true, isMove(offsetX, offsetY, unit));
+                const canMove = isMove(offsetX, offsetY, unit);
+                const statusBehindObastacle = behindObstacleOrEnemy(offsetX, offsetY, unit, true, canMove);
                 if (statusBehindObastacle === 1) {
                     continue;
                 }
                 const idxEnemy = isOnEnemy(offsetX, offsetY);
                 const x = (idPlayer === statusGame.firstPlayer) ? beginX + (offsetX * sizeCell) : beginX + ((14 - offsetX) * sizeCell);
                 const y = (idPlayer === statusGame.firstPlayer) ?  beginY  + (offsetY * sizeCell) : beginY  + ((14 - offsetY) * sizeCell);
-                if (idxEnemy !== -1) {
+                if (idxEnemy !== -1 && (canMove === true || isInvisibleNinja(idxEnemy) === false)) {
                     const buttonMove = game.add.button(x, y, 'attack', () => {attackEnemy(unit, idxEnemy)});
                     buttonMove.scale.setTo(0.17, 0.17);
                     gameItems.buttons["move"].push(buttonMove);
                 } else if (haveToDisplayMove(offsetX, offsetY, unit, true)) {
                     let buttonMove = null;
-                    if (statusBehindObastacle === 0 && isMove(offsetX, offsetY, unit) === true) {
+                    if (statusBehindObastacle === 0 && canMove === true) {
                         buttonMove = game.add.button(x, y, 'move', () => {moveUnit(unit, offsetX, offsetY)});
                     } else if (statusBehindObastacle !== 1) {
                         buttonMove = game.add.button(x, y, 'range', () => {});
@@ -967,6 +993,18 @@
         return true;
     }
 
+    function isInvisibleNinja(idxEnemy, isMove) {
+        for (const enemy of statusGame.enemyArmy) {
+            if (enemy.idx === idxEnemy) {
+                if (enemy.type === 'ninja' && enemy.invisible === true) {
+                    return true;
+                }
+                break;
+            }
+        }
+        return false;
+    }
+
     function checkTurnOver() {
         if (myTurn === true) {
             if (statusGame.nbActions <= 0 || everyUnitHasAttacked() === true) {
@@ -987,17 +1025,26 @@
     function skipTurn() {
         if (myTurn === true) {
             destroyButtonsMove();
+            destroyYourTurn();
             const url = `${baseUrl}/turn_over/${idRoom}?idPlayer=${idPlayer}`;
             sendRequest(url, "GET");
         }
     }
 
     function displayYourTurn() {
-        const yourTurn = game.add.sprite(0, 0, 'animationYourTurn', 1);
-        yourTurn.centerX = windowWidth / 2;
-        yourTurn.centerY = windowHeight / 2;
-        const animation = yourTurn.animations.add('yourTurn');
-        animation.play(7, false, true);
+        gameItems.yourTurnAnimation.sprite = game.add.sprite(0, 0, 'animationYourTurn', 1);
+        gameItems.yourTurnAnimation.sprite.centerX = windowWidth / 2;
+        gameItems.yourTurnAnimation.sprite.centerY = windowHeight / 2;
+        gameItems.yourTurnAnimation.anim = gameItems.yourTurnAnimation.sprite.animations.add('yourTurn');
+        gameItems.yourTurnAnimation.anim.play(8, false, true);
+    }
+
+    function destroyYourTurn() {
+        if (gameItems.yourTurnAnimation.sprite !== null) {
+            gameItems.yourTurnAnimation.sprite.destroy();
+            gameItems.yourTurnAnimation.sprite = null;
+            gameItems.yourTurnAnimation.anim = null;
+        }
     }
 
     /* _________________________________ SCENE 4 - WINNER _________________________________ */

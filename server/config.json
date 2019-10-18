@@ -48,8 +48,8 @@
         "shieldman": {
             "type": "shieldman",
             "description": "Shieldman: a wall with two eyes.",
-            "bonus": "can be used as obstacle",
-            "maxHp": 12,
+            "bonus": "can protect against projectiles",
+            "maxHp": 10,
             "dmg": 1,
             "move": 2,
             "range": 0,
