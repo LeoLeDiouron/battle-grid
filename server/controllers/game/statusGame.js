@@ -24,15 +24,20 @@ function statusGame(req, res, next) {
         const animations = global.ROOMS[idRoom][idPlayer].animations;
         global.ROOMS[idRoom][idPlayer].animations = [];
         const maxNbActions = (getLeaderOfArmy(idRoom, global.ROOMS[idRoom].turnPlayer) === "queen_of_slaves") ? global.CONFIG.round.maxNbActions + 1 : global.CONFIG.round.maxNbActions;
+        while (global.ROOMS[idRoom].logs.length > 6) {
+            global.ROOMS[idRoom].logs.pop();
+        }
+        const room = global.ROOMS[idRoom];
         res.send({
-            myArmy: global.ROOMS[idRoom][idPlayer].army,
-            enemyArmy: global.ROOMS[idRoom][idEnemy].army,
-            turnPlayer: global.ROOMS[idRoom].turnPlayer,
-            nbActions: global.ROOMS[idRoom].nbActions,
+            myArmy: room[idPlayer].army,
+            enemyArmy: room[idEnemy].army,
+            turnPlayer: room.turnPlayer,
+            nbActions: room.nbActions,
             maxNbActions,
-            firstPlayer: global.ROOMS[idRoom].firstPlayer,
-            obstacles: global.ROOMS[idRoom].obstacles,
-            animations
+            firstPlayer: room.firstPlayer,
+            obstacles: room.obstacles,
+            animations,
+            logs: room.logs
         });
     } else {
         res.send({});

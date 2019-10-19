@@ -1,10 +1,10 @@
-function findDmgUnit(army, idx) {
+function findUnit(army, idx) {
     for (let i = 0; i < army.length; i++) {
         if (army[i].idx === idx) {
-            return army[i].dmg;
+            return army[i];
         }
     }
-    return 0;
+    return null;
 }
 
 function findOtherPlayer(idRoom, idPlayer) {
@@ -54,23 +54,36 @@ function dealDamages(idRoom, idPlayer, body) {
 
     for (let i = 0; i < global.ROOMS[idRoom][idOtherPlayer].army.length; i++) {
         if (global.ROOMS[idRoom][idOtherPlayer].army[i].idx === body.idxEnemy) {
-            global.ROOMS[idRoom][idOtherPlayer].army[i].hp -= findDmgUnit(global.ROOMS[idRoom][idPlayer].army, body.idx);
+            const attackUnit = findUnit(global.ROOMS[idRoom][idPlayer].army, body.idx)
+            global.ROOMS[idRoom][idOtherPlayer].army[i].hp -= attackUnit.dmg;
             if (global.ROOMS[idRoom][idOtherPlayer].army[i].hp <= 0) {
                 if (body.idxEnemy !== 0) {
                     if (global.ROOMS[idRoom][idOtherPlayer].army[i].type !== "zombie" && global.ROOMS[idRoom][idOtherPlayer].army[i].type !== "necromancer") {
                         necromancerAction(idRoom, idOtherPlayer, i);
                     }
+                    newLog(idRoom, idPlayer, `[${attackUnit.type}] has killed [${global.ROOMS[idRoom][idOtherPlayer].army[i].type}]`);
                     global.ROOMS[idRoom][idOtherPlayer].army.splice(i, 1);
                 } else {
                     global.ROOMS[idRoom].winner = idPlayer;
                     global.ROOMS[idRoom].status = 4;
                 }
             } else {
+                newLog(idRoom, idPlayer, `[${attackUnit.type}] has attacked [${global.ROOMS[idRoom][idOtherPlayer].army[i].type}] (-${attackUnit.dmg})`);
                 addAttackAnimation(idRoom, idPlayer, idOtherPlayer, i);
             }
             break;
         }
     }
+}
+
+function newLog(idRoom, idPlayer, message) {
+    while (message.indexOf('_') !== -1) {
+        message = message.replace('_', ' ');
+    }
+    global.ROOMS[idRoom].logs.splice(0, 0, {
+        player: idPlayer,
+        msg: message
+    });
 }
 
 function addAttackAnimation(idRoom, idPlayer, idOtherPlayer, idxUnit) {

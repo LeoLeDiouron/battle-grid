@@ -43,7 +43,8 @@ function createRoom(req, res, next) {
         winner: null,
         firstPlayer: idPlayer,
         players: [],
-        obstacles: loadMap()
+        obstacles: loadMap(),
+        logs: []
     };
     global.ROOMS[idRoom][idPlayer] = {
         animations: []

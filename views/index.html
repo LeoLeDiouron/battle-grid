@@ -599,6 +599,23 @@
             displayYourTurn();
             beginTurn = false;
         }
+        displayLogs();
+    }
+
+    function displayLogs() {
+        let idx = 0;
+        for (const log of statusGame.logs) {
+            if ('logs_' + idx in gameItems.text) {
+                gameItems.text['logs_' + idx].destroy();
+            }
+            gameItems.text['logs_' + idx] = game.add.bitmapText(beginX + sizeCell * (sizeGrid) + 5, beginY + gameItems.buttons.next.height + 10 + (idx * 30), 'font', log.msg, 25);
+            if (log.player === idPlayer) {
+                gameItems.text['logs_' + idx].tint = 0x308D16;
+            } else {
+                gameItems.text['logs_' + idx].tint = 0xB43B31;
+            }
+            idx++;
+        }
     }
 
     function displayAnimations() {
@@ -963,14 +980,14 @@
                 const url = `${baseUrl}/turn_over/${idRoom}?idPlayer=${idPlayer}`;
                 sendRequest(url, "GET");
                 gameItems.text["turn"].text = `Enemy's turn - ${statusGame.nbActions}/${statusGame.maxNbActions}`;
-                gameItems.text["turn"].tint = 0xFF0000;
+                gameItems.text["turn"].tint = 0xB43B31;
             } else {
                 gameItems.text["turn"].text = `Your turn - ${statusGame.nbActions}/${statusGame.maxNbActions}`;
                 gameItems.text["turn"].tint = 0xFFFFFF;
             }
         } else {
             gameItems.text["turn"].text = `Enemy's turn - ${statusGame.nbActions}/${statusGame.maxNbActions}`;
-            gameItems.text["turn"].tint = 0xFF0000;
+            gameItems.text["turn"].tint = 0xB43B31;
         }
     }
 
