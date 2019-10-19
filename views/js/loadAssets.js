@@ -2,6 +2,7 @@ function loadAssets(game) {
     // plugin for input
     game.add.plugin(PhaserInput.Plugin);
     // load menu buttons
+    game.load.image('logo', 'assets/images/menu/logo.png');
     game.load.image('new', 'assets/images/menu/new.png');
     game.load.image('join', 'assets/images/menu/join.png');
     game.load.image('random', 'assets/images/menu/random.png');
@@ -34,7 +35,8 @@ function loadAssets(game) {
     game.load.image('blocked', 'assets/images/round/blocked.png');
     game.load.image('redBorder', 'assets/images/round/enemy_border.png');
     game.load.image('enemyRange', 'assets/images/round/enemy_range.png');
-    game.load.image('next', 'assets/images/round/next.png');
+    // game.load.image('next', 'assets/images/round/next.png');
+    game.load.image('next', 'assets/images/round/skip.png');
     game.load.image('yourTurn', 'assets/images/round/your_turn.png');
     // load background
     game.load.image('fog', 'assets/images/round/fog.png');

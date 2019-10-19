@@ -24,7 +24,7 @@ function statusGame(req, res, next) {
         const animations = global.ROOMS[idRoom][idPlayer].animations;
         global.ROOMS[idRoom][idPlayer].animations = [];
         const maxNbActions = (getLeaderOfArmy(idRoom, global.ROOMS[idRoom].turnPlayer) === "queen_of_slaves") ? global.CONFIG.round.maxNbActions + 1 : global.CONFIG.round.maxNbActions;
-        while (global.ROOMS[idRoom].logs.length > 6) {
+        while (global.ROOMS[idRoom].logs.length > global.CONFIG.round.maxLogs) {
             global.ROOMS[idRoom].logs.pop();
         }
         const room = global.ROOMS[idRoom];

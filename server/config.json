@@ -3,6 +3,7 @@
 
     },
     "round": {
+        "maxLogs": 10,
         "money": 300,
         "maxUnits": 20,
         "maxNbActions": 2,

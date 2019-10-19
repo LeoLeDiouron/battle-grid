@@ -167,7 +167,10 @@
         menuItems.graphics.lineTo(line.end.x,line.end.y);
         menuItems.graphics.endFill();
         // add title
-        menuItems.title = game.add.bitmapText(0, windowHeight / 2 - 60, 'font', 'BATTLE GRID', 40);
+        // menuItems.title = game.add.bitmapText(0, windowHeight / 2 - 60, 'font', 'BATTLE GRID', 40);
+        // menuItems.title.x = windowWidth / 2 - menuItems.title.width - 10;
+        menuItems.title = game.add.image(0, windowHeight / 2 - 200, 'logo');
+        menuItems.title.scale.setTo(0.5, 0.5);
         menuItems.title.x = windowWidth / 2 - menuItems.title.width - 10;
         // add menu buttons
         menuItems.buttons["new"] = game.add.button(windowWidth / 2, windowHeight / 2 + 25, "new", () => {createRoom();});
@@ -548,7 +551,7 @@
         }
         gameItems.images["fog"] = [];
         const nextButton = game.add.button(beginX + sizeCell * (sizeGrid) + 10, beginY, "next", () => {skipTurn();});
-        nextButton.scale.setTo(sizeCell / nextButton.width, sizeCell / nextButton.height);
+        nextButton.scale.setTo((sizeCell / nextButton.width) * 2, sizeCell / nextButton.height);
         gameItems.buttons["next"] = nextButton;
     }
 
