@@ -8,6 +8,8 @@
     <script src="./phaser-input.js"></script>
     <!-- custom imports -->
     <script src="./views/js/loadAssets.js"></script>
+    <script src="./views/js/initItems.js"></script>
+    <!-- css -->
     <style type="text/css">
         body {
             margin: 0;
@@ -34,6 +36,8 @@
     let statusRoom = 0;
     let config = null;
     let validateArmy = false;
+
+    // about scene items
     let menuItems = initMenuItems();
     let waitingItems = initWaitingItems();
     let joinItems = initJoinItems();
@@ -85,61 +89,72 @@
 
     async function update() {
         if (idxFrame % 10 == 0) {
-            responsive();
             if (idRoom !== null) {
                 tmpStatusRoom = sendRequest(baseUrl + "/status_room/" + idRoom, "GET");
-                if (tmpStatusRoom.status === 2 && statusRoom === 1) { // two players are here, need to select army
-                    destroyWaiting();
-                    displaySelectionLeader();
-                } else if (tmpStatusRoom.status === 3 && statusRoom === 2) { // two players choosed their army, start game
-                    statusGame = sendRequest(baseUrl + "/status_game/" + idRoom + "?idPlayer=" + idPlayer, "GET");
-                    destroySelection();
-                    displayGrid();
-                    checkTurnOver();
-                    displayArmies();
-                } else if (tmpStatusRoom.status === 4 && statusRoom === 3) { // one player win
-                    destroyGrid();
-                    displayWinner(tmpStatusRoom.winner);
-                }
-                statusRoom = tmpStatusRoom.status;
+                statusRoom = updateManagementRoom(tmpStatusRoom);
                  if (statusRoom === 3) {
-                    while (nbAnimations > 0) {
-                        await sleep(1000);
-                        continue;
-                     }
-                    const tmpStatusGame = sendRequest(baseUrl + "/status_game/" + idRoom + "?idPlayer=" + idPlayer, "GET");
-                    if (statusGameChanged === null || JSON.stringify(tmpStatusGame) !== JSON.stringify(statusGame)) {
-                        statusGameChanged = true;
-                    } else {
-                        statusGameChanged = false;
-                    }
-                    statusGame = tmpStatusGame;
-                    if (statusGame.turnPlayer === idPlayer) {
-                        if (myTurn === null || myTurn === false) {
-                            beginTurn = true;
-                        }
-                        myTurn = true;
-                    } else {
-                        myTurn = false;
-                    }
-                    checkTurnOver();
-                    displayArmies();
-                    if (statusGame.animations.length > 0) {
-                        displayAnimations();
-                    }
+                    updateManagementGame();
                 }
             }
         } else {
-            if (idRoom === null) {
-                for (let i = 0; i < menuItems.images.length; i++) {
-                    menuItems.images[i].x += 1;
-                    if (menuItems.images[i].x >= windowWidth) {
-                        menuItems.images[i].x = 0;
-                    }
+            updateScrollUnitsMenu();
+        }
+        idxFrame++;
+    }
+
+    function updateManagementRoom(tmpStatusRoom) {
+        if (tmpStatusRoom.status === 2 && statusRoom === 1) { // two players are here, need to select army
+            destroyWaiting();
+            displaySelectionLeader();
+        } else if (tmpStatusRoom.status === 3 && statusRoom === 2) { // two players choosed their army, start game
+            statusGame = sendRequest(baseUrl + "/status_game/" + idRoom + "?idPlayer=" + idPlayer, "GET");
+            destroySelection();
+            displayGrid();
+            checkTurnOver();
+            displayArmies();
+        } else if (tmpStatusRoom.status === 4 && statusRoom === 3) { // one player win
+            destroyGrid();
+            displayWinner(tmpStatusRoom.winner);
+        }
+        return tmpStatusRoom.status;
+    }
+
+    async function updateManagementGame() {
+        while (nbAnimations > 0) {
+            await sleep(1000);
+            continue;
+        }
+        const tmpStatusGame = sendRequest(baseUrl + "/status_game/" + idRoom + "?idPlayer=" + idPlayer, "GET");
+        if (statusGameChanged === null || JSON.stringify(tmpStatusGame) !== JSON.stringify(statusGame)) {
+            statusGameChanged = true;
+        } else {
+            statusGameChanged = false;
+        }
+        statusGame = tmpStatusGame;
+        if (statusGame.turnPlayer === idPlayer) {
+            if (myTurn === null || myTurn === false) {
+                beginTurn = true;
+            }
+            myTurn = true;
+        } else {
+            myTurn = false;
+        }
+        checkTurnOver();
+        displayArmies();
+        if (statusGame.animations.length > 0) {
+            displayAnimations();
+        }
+    }
+
+    function updateScrollUnitsMenu() {
+        if (idRoom === null) {
+            for (let i = 0; i < menuItems.images.length; i++) {
+                menuItems.images[i].x += 1;
+                if (menuItems.images[i].x >= windowWidth) {
+                    menuItems.images[i].x = 0;
                 }
             }
         }
-        idxFrame++;
     }
 
     /* _________________________________ SCENE 0 - MENU _________________________________ */
@@ -192,16 +207,6 @@
         menuItems = initMenuItems();
     }
 
-    function initMenuItems() {
-        return {
-            title: null,
-            graphics: null,
-            buttons: {},
-            text: {},
-            images: []
-        };
-    }
-
     function createRoom() {
         destroyMenu();
         idRoom = sendRequest(baseUrl + "/create_room?idPlayer=" + idPlayer, "GET").idRoom;
@@ -247,14 +252,6 @@
             waitingItems.room.destroy();
             waitingItems = initWaitingItems();
         }
-    }
-
-    function initWaitingItems() {
-        return {
-            title: null,
-            graphics: null,
-            room: null
-        };
     }
 
     /* _________________________________ SCENE 1.1 - JOIN _________________________________ */
@@ -308,18 +305,6 @@
         displayMenu();
     }
 
-    function initJoinItems() {
-        return {
-            title: null,
-            graphics: null,
-            input: null,
-            buttonValidation: null,
-            backButton: null,
-            errorMessage: null,
-            room: null
-        };
-    }
-
     /* _________________________________ SCENE 2.1 - SELECTION OF LEADER _________________________________ */
 
     function displaySelectionLeader() {
@@ -360,16 +345,6 @@
             selectionLeaderItems.text[textKey].destroy();
         }
         selectionLeaderItems = initSelectionLeaderItems();
-    }
-
-    function initSelectionLeaderItems() {
-        return {
-            title: null,
-            shadowTitle: null,
-            buttons: {},
-            text: {},
-            border: null
-        };
     }
 
     function selectLeader(selectedLeader, centerX, centerY) {
@@ -523,16 +498,6 @@
             nbUnits++;
             disaplayChange(unit);
         }
-    }
-
-    function initSelectionItems() {
-        return {
-            title: null,
-            shadowTitle: null,
-            buttons: {},
-            text: {},
-            images: {}
-        };
     }
 
     function createArmy() {
@@ -751,19 +716,6 @@
     function destroyButtonsMove() {
         destroyArrayButtons("move");
         selectedUnit = null;
-    }
-
-    function initGameItems() {
-        return {
-            graphics: null,
-            buttons: {},
-            text: {},
-            images: {},
-            yourTurnAnimation: {
-                sprite: null,
-                anim: null
-            }
-        };
     }
 
     function modifyName(name) {
@@ -1108,46 +1060,7 @@
         winnerItems = initWinnerItems();
     }
 
-    function initWinnerItems() {
-        return {
-            title: null,
-            icon: null,
-            buttonRetry: null,
-            buttonBack: null
-        }
-    }
-
     /* _________________________________ TOOLS _________________________________ */
-
-    function responsive() {
-        if (windowWidth !== window.innerWidth || windowHeight !== window.innerHeight) {
-            console.log(`${windowWidth} -> ${window.innerWidth} and ${windowHeight} -> ${window.innerHeight}`);
-            sizeScreenChanged = true;
-            windowWidth = window.innerWidth;
-            windowHeight = window.innerHeight;
-            game.width = windowWidth;
-            game.height = windowHeight;
-            if (idRoom === null) {
-                console.log('MENU');
-                destroyMenu();
-                displayMenu();
-            } else if (statusRoom === 1) {
-                console.log('WAITING');
-                destroyWaiting();
-                displayWaiting();
-            } else if (statusRoom === 2) { // penser a un systeme pour leader (if leader = null)
-                console.log('SELECTION');
-                destroySelection();
-                displaySelection();
-            } else {
-                console.log('GRID');
-                destroyGrid();
-                displayGrid();
-                displayArmies();
-            }
-            sizeScreenChanged = false;
-        }
-    }
 
     function sendRequest(url, method, body=null) {
         const req = new XMLHttpRequest();
