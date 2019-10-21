@@ -28,7 +28,10 @@ def find_unit_with_id(status_game, army, id_unit):
 
 def find_avaible_unit(status_game):
     for unit in status_game['myArmy']:
+        import json
+        print(json.dumps(unit))
         if unit['idx'] != 0 and unit['hasAttacked'] == False:
+            print("Avaible unit %s" % (unit['idx']))
             return unit['idx']
     return 0
 
@@ -133,14 +136,14 @@ def move_avaible(status_game, x, y, unit):
 def get_all_possible_moves(status_game, unit):
     moves = []
     moves_attack = []
-    for x in range(unit['x'] - unit['move'], unit['x'] + unit['move']):
-        for y in range(unit['y'] - unit['move'], unit['y'] + unit['move']):
+    for x in range(unit['x'] - (unit['move'] + unit['range']), unit['x'] + (unit['move'] + unit['range']) + 1):
+        for y in range(unit['y'] - (unit['move'] + unit['range']), unit['y'] + (unit['move'] + unit['range']) + 1):
             status_behind_obstacle = behind_obstacle_or_enemy(status_game, x, y, unit, is_move(x, y, unit))
             if status_behind_obstacle == 1:
                 pass
             moves_attack.append({"x": x, "y": y})
             can_move = move_avaible(status_game, x, y, unit)
-            if can_move == True:
+            if is_move(x, y, unit) and can_move == True:
                 moves.append({"x": x, "y": y})
     return moves, moves_attack
 
@@ -168,7 +171,6 @@ def move_to_enemy(id_room, id_player, status_game, moves, unit, id_closest_enemy
     post(BASE_URL + "/move/" + id_room + "?idPlayer=" + id_player, body)
 
 def attack(id_room, id_player, unit_idx, enemy_idx):
-    print("Attack")
     body = {
         "idx": unit_idx,
         "idxEnemy": enemy_idx
@@ -200,6 +202,8 @@ def play_game(id_player, id_room, config):
         if status_room['status'] == 3:
             status_game = get(BASE_URL + "/status_game/" + id_room + "?idPlayer=" + id_player)
             if status_game['turnPlayer'] == id_player:
+                import json
+                print(json.dumps(status_game['myArmy']))
                 if nb_actions == 0:
                     nb_actions = status_game['maxNbActions']
                     print("Nb actions : %s" % (str(nb_actions)))

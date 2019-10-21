@@ -24,7 +24,7 @@ def create_army(id_room, id_player):
     body = {
         "leader": "ulfrik_the_terror",
         "army": {
-            "peasant":0,"shieldman":0,"soldier":0,"bowman":0,"ninja":0,"crossbowman":1,"doctor":0,"knight":3,"necromancer":0
+            "peasant":0,"shieldman":0,"soldier":0,"bowman":0,"ninja":0,"crossbowman":2,"doctor":0,"knight":4,"necromancer":0
         }
     }
     post(BASE_URL + "/create_army/" + id_room + "?idPlayer=" + id_player, body)
