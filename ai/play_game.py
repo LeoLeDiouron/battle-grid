@@ -50,6 +50,9 @@ def is_move(x, y, unit):
 def find_closest_enemy(enemies_in_vision, unit_x, unit_y):
     id_closest = 0 # by default, the id of the leader
     diff_closest = None
+    for enemy in enemies_in_vision: # check king
+        if enemy['idx'] == 0:
+            return 0
     for enemy in enemies_in_vision:
         diff_x = abs(enemy['x'] - unit_x)
         diff_y = abs(enemy['y'] - unit_y)
@@ -178,6 +181,9 @@ def attack(id_room, id_player, unit_idx, enemy_idx):
     post(BASE_URL + "/attack/" + id_room + "?idPlayer=" + id_player, body)
 
 def find_enemy_to_attack(enemy_army, moves):
+    for move in moves: # check king
+        if move['x'] == enemy_army[0]['x'] and move['y'] == enemy_army[0]['y']:
+            return 0
     for move in moves:
         for enemy in enemy_army:
             if move['x'] == enemy['x'] and move['y'] == enemy['y']: # NEED TO CHECK FOR INVISIBLE NINJA

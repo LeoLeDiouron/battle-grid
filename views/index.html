@@ -359,7 +359,7 @@
         selectionLeaderItems.border.centerX = centerX;
         selectionLeaderItems.border.centerY = centerY;
         if (selectedLeader !== "randomSelection") {
-            myLeader = selectLeader;
+            myLeader = selectedLeader;
             selectionLeaderItems.text['description'].text = config.leaders[selectedLeader].description;
         } else {
             myLeader = listLeaders[random(3)];
