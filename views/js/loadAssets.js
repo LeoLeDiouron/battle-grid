@@ -13,6 +13,7 @@ function loadAssets(game) {
     game.load.image('validated', 'assets/images/selection/validated.png');
     game.load.image('more', 'assets/images/selection/more.png');
     game.load.image('less', 'assets/images/selection/less.png');
+    game.load.image('randomSelection', 'assets/images/selection/random_selection.png');
     // load leaders
     game.load.image('rich_king', 'assets/images/leaders/rich_king.png');
     game.load.image('queen_of_slaves', 'assets/images/leaders/queen_of_slaves.png');

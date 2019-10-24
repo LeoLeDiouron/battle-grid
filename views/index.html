@@ -64,7 +64,7 @@
     let statusGameChanged = null;
     let myTurn = null;
     let selectedUnit = null;
-    const listLeaders = ["rich_king", "queen_of_slaves", "ulfrik_the_terror"];
+    const listLeaders = ["rich_king", "queen_of_slaves", "ulfrik_the_terror", "randomSelection"];
     const listUnits = ["peasant", "shieldman", "bowman", "soldier", "ninja", "crossbowman", "doctor", "knight", "necromancer"];
 
     // about animations
@@ -319,7 +319,7 @@
         selectionLeaderItems.title = game.add.bitmapText(0, windowHeight / 2 - 300, 'font', 'SELECT YOUR LEADER', 40);
         selectionLeaderItems.title.centerX = windowWidth / 2;
         // add buttons selection
-        let idx = Math.round(0 - listLeaders.length / 2 + 0.5);
+        let idx = 0 - listLeaders.length / 2 + 0.5;
         for (const leader of listLeaders) {
             addSelectionLeader(leader, idx);
             idx++;
@@ -351,7 +351,6 @@
     }
 
     function selectLeader(selectedLeader, centerX, centerY) {
-        myLeader = selectedLeader;
         if (selectionLeaderItems.border !== null) {
             selectionLeaderItems.border.destroy();
         }
@@ -359,7 +358,13 @@
         selectionLeaderItems.border.scale.setTo(0.7, 0.7);
         selectionLeaderItems.border.centerX = centerX;
         selectionLeaderItems.border.centerY = centerY;
-        selectionLeaderItems.text['description'].text = config.leaders[selectedLeader].description;
+        if (selectedLeader !== "randomSelection") {
+            myLeader = selectLeader;
+            selectionLeaderItems.text['description'].text = config.leaders[selectedLeader].description;
+        } else {
+            myLeader = listLeaders[random(3)];
+            selectionLeaderItems.text['description'].text = "Random leader.";
+        }
         selectionLeaderItems.text['description'].centerX = windowWidth / 2;
         // add button validate
         if (!("validate" in selectionLeaderItems.buttons)) {
