@@ -58,6 +58,7 @@
     const beginX = (windowWidth / 2) - (sizeCell * sizeGrid / 2);
     const beginY = (windowHeight / 2) - (sizeCell * sizeGrid / 2);
     let beginTurn = null;
+    const sizeCellSprite = 0.171;
 
     // about gameplay
     let statusGame = null;
@@ -278,7 +279,7 @@
         joinItems.errorMessage = game.add.bitmapText(windowWidth / 2, windowHeight / 2 + 125, "font", "", 30);
         // add back button
         joinItems.backButton = game.add.button(10, 10, "back", () => {backToMenuFromJoin()});
-        joinItems.backButton.scale.setTo(0.17, 0.17);
+        joinItems.backButton.scale.setTo(sizeCellSprite, sizeCellSprite);
     }
 
     function joinARoom(codeRoom) {
@@ -532,9 +533,9 @@
         gameItems.images["ground"] = [];
         for (let x = 0; x < sizeGrid; x++) {
             for (let y = 0; y < sizeGrid; y++) {
-                gameItems.graphics.drawRect(x * sizeCell, y * sizeCell, sizeCell, sizeCell);
+                // gameItems.graphics.drawRect(x * sizeCell, y * sizeCell, sizeCell, sizeCell);
                 const imgGround = game.add.image(beginX + (x * sizeCell), beginY + (y * sizeCell), "ground" + (1 + random(5)));
-                imgGround.scale.setTo(0.17, 0.17);
+                imgGround.scale.setTo(sizeCellSprite, sizeCellSprite);
                 gameItems.images.ground.push(imgGround);
             }
         }
@@ -547,11 +548,11 @@
                 imgObstacle = game.add.image(x, y, obstacle.type);
             } else {
                 imgObstacle = game.add.sprite(x, y, obstacle.type, 1);
-                imgObstacle.scale.setTo(0.17, 0.17);
+                imgObstacle.scale.setTo(sizeCellSprite, sizeCellSprite);
                 const animation = imgObstacle.animations.add(obstacle.type);
                 animation.play(3, true);
             }
-            imgObstacle.scale.setTo(0.17, 0.17);
+            imgObstacle.scale.setTo(sizeCellSprite, sizeCellSprite);
             gameItems.images.obstacles.push(imgObstacle);
         }
         gameItems.images["fog"] = [];
@@ -635,7 +636,7 @@
             const animY = (idPlayer === statusGame.firstPlayer) ? beginY + (animation.y * sizeCell) : beginY + ((14 - animation.y) * sizeCell);
             if (inVisionOfArmy(animation.x, animation.y) === true) {
                 listSprite.push(game.add.sprite(animX, animY, animation.type, 1));
-                listSprite[idx].scale.setTo(0.17, 0.17);
+                listSprite[idx].scale.setTo(sizeCellSprite, sizeCellSprite);
                 listAnimations.push(listSprite[idx].animations.add(animation.type));
                 listAnimations[idx].onComplete.add(() => {nbAnimations--;}, this);
                 listAnimations[idx].play(animation.speed, false, true);
@@ -661,7 +662,7 @@
         const y = (idPlayer === statusGame.firstPlayer) ?  beginY  + (unit.y * sizeCell) : beginY  + ((14 - unit.y) * sizeCell);
         // add sprite unit
         const unitButton = game.add.button(x, y, unit.type, event);
-        unitButton.scale.setTo(0.17, 0.17);
+        unitButton.scale.setTo(sizeCellSprite, sizeCellSprite);
         unitButton.alpha = opacity;
         gameItems.buttons[army][unit.idx] = unitButton;
         // add enemy border
@@ -673,13 +674,13 @@
         // add blocked icon
         if (unit.hasAttacked === true) {
             const blockedButton = game.add.button(x, y, "blocked", event);
-            blockedButton.scale.setTo(0.17, 0.17);
+            blockedButton.scale.setTo(sizeCellSprite, sizeCellSprite);
             gameItems.buttons.blocked.push(blockedButton);
         }
         // add damaged effect
         if (unit.hp < 3) {
             const damagedButton = game.add.button(x, y, "damaged", event);
-            damagedButton.scale.setTo(0.17, 0.17);
+            damagedButton.scale.setTo(sizeCellSprite, sizeCellSprite);
             damagedButton.alpha = 0.3;
             gameItems.buttons.damaged.push(damagedButton);
         }
@@ -705,7 +706,7 @@
                     const fogX = (idPlayer === statusGame.firstPlayer) ? beginX + (x * sizeCell) : beginX + ((14 - x) * sizeCell);
                     const fogY = (idPlayer === statusGame.firstPlayer) ? beginY + (y * sizeCell) : beginY + ((14 - y) * sizeCell);
                     const imgFog = game.add.image(fogX, fogY, "fog");
-                    imgFog.scale.setTo(0.17, 0.17);
+                    imgFog.scale.setTo(sizeCellSprite, sizeCellSprite);
                     imgFog.alpha = 0.8;
                     gameItems.images.fog.push(imgFog);
                 }
@@ -895,7 +896,7 @@
                 const y = (idPlayer === statusGame.firstPlayer) ?  beginY  + (offsetY * sizeCell) : beginY  + ((14 - offsetY) * sizeCell);
                 if (idxEnemy !== -1 && (canMove === true || isInvisibleNinja(idxEnemy) === false)) {
                     const buttonMove = game.add.button(x, y, 'attack', () => {attackEnemy(unit, idxEnemy)});
-                    buttonMove.scale.setTo(0.17, 0.17);
+                    buttonMove.scale.setTo(sizeCellSprite, sizeCellSprite);
                     gameItems.buttons["move"].push(buttonMove);
                 } else if (haveToDisplayMove(offsetX, offsetY, unit, true)) {
                     let buttonMove = null;
@@ -904,7 +905,7 @@
                     } else if (statusBehindObastacle !== 1) {
                         buttonMove = game.add.button(x, y, 'range', () => {});
                     }
-                    buttonMove.scale.setTo(0.17, 0.17);
+                    buttonMove.scale.setTo(sizeCellSprite, sizeCellSprite);
                     gameItems.buttons["move"].push(buttonMove);
                 }
             }
@@ -930,7 +931,7 @@
                     const x = (idPlayer === statusGame.firstPlayer) ? beginX + (offsetX * sizeCell) : beginX + ((14 - offsetX) * sizeCell);
                     const y = (idPlayer === statusGame.firstPlayer) ?  beginY  + (offsetY * sizeCell) : beginY  + ((14 - offsetY) * sizeCell);
                     const buttonMove = game.add.button(x, y, 'enemyRange', () => {destroyButtonsMove();});
-                    buttonMove.scale.setTo(0.17, 0.17);
+                    buttonMove.scale.setTo(sizeCellSprite, sizeCellSprite);
                     if (isOnAllie(offsetX, offsetY, unit, false) === true) {
                         buttonMove.alpha = 0.5;
                     }
@@ -1043,12 +1044,12 @@
         winnerItems.icon.centerY = windowHeight / 2 - winnerItems.icon.height;
         // add button back
         winnerItems.buttonBack = game.add.button(0, 0, "back", () => {backToMenuFromEnd();});
-        winnerItems.buttonBack.scale.setTo(0.17, 0.17);
+        winnerItems.buttonBack.scale.setTo(sizeCellSprite, sizeCellSprite);
         winnerItems.buttonBack.centerX = windowWidth / 2 - winnerItems.title.width;
         winnerItems.buttonBack.centerY = windowHeight / 2;
         // add button retry
         winnerItems.buttonRetry = game.add.button(0, 0, "retry", () => {retry();});
-        winnerItems.buttonRetry.scale.setTo(0.17, 0.17);
+        winnerItems.buttonRetry.scale.setTo(sizeCellSprite, sizeCellSprite);
         winnerItems.buttonRetry.centerX = windowWidth / 2 + winnerItems.title.width;
         winnerItems.buttonRetry.centerY = windowHeight / 2;
     }
