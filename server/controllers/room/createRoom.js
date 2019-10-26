@@ -38,6 +38,7 @@ function createRoom(req, res, next) {
         idRoom += alphaNum.charAt(rnd);
     }
     global.ROOMS[idRoom] = {
+        createdAt: new Date(),
         status: 1,
         turnPlayer: idPlayer,
         winner: null,

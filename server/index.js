@@ -48,4 +48,18 @@ function loadConfig() {
     return JSON.parse(fs.readFileSync("./server/config.json"));
 }
 
+// each minute, check if there are room created more than one hour ago
+function deleteOldRooms() {
+    console.log("deleteOldRooms");
+    const lastHour = new Date();
+    lastHour.setHours(lastHour.getHours() - 1);
+    for (const idRoom of Object.keys(global.ROOMS)) {
+        if (global.ROOMS[idRoom].createdAt < lastHour) {
+            delete global.ROOMS[idRoom];
+        }
+    }
+}
+
+setInterval(deleteOldRooms, 60 * 1000);
+
 module.exports = router;

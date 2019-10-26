@@ -40,6 +40,12 @@ def is_in_range(unit, enemy_x, enemy_y, coeff):
         return True
     else:
         return False
+
+def is_in_move(unit, enemy_x, enemy_y):
+    if enemy_x >= unit['x'] - unit['move'] and enemy_x <= unit['x'] + unit['move'] and enemy_y >= unit['y'] - unit['move'] and enemy_y <= unit['y'] + unit['move']:
+            return True
+    else:
+        return False
     
 def is_move(x, y, unit):
     if x >= unit['x'] - unit['move'] and x <= unit['x'] + unit['move'] and y >= unit['y'] - unit['move'] and y <= unit['y'] + unit['move']:
@@ -66,7 +72,8 @@ def check_enemies_in_vision(status_game, unit_x, unit_y):
     enemies_in_vision = []
     for unit in status_game['myArmy']:
         for enemy_unit in status_game['enemyArmy']:
-            if is_in_range(unit, enemy_unit['x'], enemy_unit['y'], 1.5) == True:
+            if is_in_range(unit, enemy_unit['x'], enemy_unit['y'], 1.5) == True and \
+                (is_in_move(unit, enemy_unit['x'], enemy_unit['y']) == True or enemy_unit['type'] != 'ninja' or enemy_unit['invisible'] == False):
                 if already_in_enemies_vision(enemies_in_vision, enemy_unit['idx']) == False:
                     enemies_in_vision.append({
                         "idx": enemy_unit['idx'],
@@ -186,7 +193,7 @@ def find_enemy_to_attack(enemy_army, moves):
             return 0
     for move in moves:
         for enemy in enemy_army:
-            if move['x'] == enemy['x'] and move['y'] == enemy['y']: # NEED TO CHECK FOR INVISIBLE NINJA
+            if move['x'] == enemy['x'] and move['y'] == enemy['y']:
                 return enemy['idx']
     return -1
 

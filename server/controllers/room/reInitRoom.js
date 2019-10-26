@@ -30,6 +30,7 @@ function loadMap() {
 
 function newRoom(idPlayer) {
     return {
+        createdAt: new Date(),
         status: 1,
         turnPlayer: idPlayer,
         nbActions: 4,
