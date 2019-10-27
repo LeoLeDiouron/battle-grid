@@ -42,7 +42,7 @@
             "bonus": "",
             "maxHp": 5,
             "dmg": 2,
-            "move": 2,
+            "move": 3,
             "range": 0,
             "price": 10
         },
@@ -72,7 +72,7 @@
             "bonus": "",
             "maxHp": 8,
             "dmg": 3,
-            "move": 3,
+            "move": 4,
             "range": 0,
             "price": 40
         },
@@ -82,7 +82,7 @@
             "bonus": "is invisible until he attacks",
             "maxHp": 6,
             "dmg": 3,
-            "move": 2,
+            "move": 3,
             "range": 0,
             "price": 50,
             "invisible": true
@@ -92,7 +92,7 @@
             "description": "Crossbowman: unofficial son of Guillaume Tell.",
             "bonus": "very long range",
             "maxHp": 8,
-            "dmg": 4,
+            "dmg": 5,
             "move": 1,
             "range": 5,
             "price": 60
@@ -103,7 +103,7 @@
             "bonus": "at the end of your turn, heals (1HP) all your units in his range",
             "maxHp": 7,
             "dmg": 2,
-            "move": 2,
+            "move": 3,
             "range": 0,
             "price": 70
         },
@@ -123,13 +123,13 @@
             "bonus": "when one of your unit dies, respawns as a zombie",
             "maxHp": 8,
             "dmg": 4,
-            "move": 1,
+            "move": 2,
             "range": 1,
             "price": 90
         },
         "zombie": {
             "type": "zombie",
-            "maxHp": 5,
+            "maxHp": 7,
             "dmg": 1,
             "move": 1,
             "range": 0

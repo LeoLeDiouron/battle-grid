@@ -76,6 +76,20 @@
     // about api
     const baseUrl = "/api";
 
+    let unitIsMoving = false;
+    let newX = null;
+    let newY = null;
+    let xDirection = null;
+    let yDirection = null;
+    let movingUnit = null;
+    const movingFilters = {
+        damaged: null,
+        blocked: null,
+        enemiesBorder: null
+    }
+    let typeArmy = null;
+
+
     /*  _________________________________ PHASER FUNCTIONS _________________________________ */
 
     function preload() {
@@ -89,12 +103,16 @@
     }
 
     async function update() {
-        if (idxFrame % 10 == 0) {
+        if (idxFrame % 10 === 0 || unitIsMoving === true) {
             if (idRoom !== null) {
-                tmpStatusRoom = sendRequest(baseUrl + "/status_room/" + idRoom, "GET");
-                statusRoom = updateManagementRoom(tmpStatusRoom);
-                 if (statusRoom === 3) {
+                if (unitIsMoving === true) {
                     updateManagementGame();
+                } else {
+                    tmpStatusRoom = sendRequest(baseUrl + "/status_room/" + idRoom, "GET");
+                    statusRoom = updateManagementRoom(tmpStatusRoom);
+                    if (statusRoom === 3) {
+                        updateManagementGame();
+                    }
                 }
             }
         } else {
@@ -112,6 +130,9 @@
             destroySelection();
             displayGrid();
             checkTurnOver();
+            if (idPlayer === statusGame.firstPlayer) {
+                beginTurn = true;
+            }
             displayArmies();
         } else if (tmpStatusRoom.status === 4 && statusRoom === 3) { // one player win
             destroyGrid();
@@ -125,15 +146,126 @@
             await sleep(1000);
             continue;
         }
+
+        if (unitIsMoving === true) {
+            if (gameItems.buttons[typeArmy][movingUnit.idx].x !== newX) {
+                gameItems.buttons[typeArmy][movingUnit.idx].x += xDirection * 5;
+                for (const filter of ['enemiesBorder', 'blocked', 'damaged']) {
+                    if (movingFilters[filter] !== null) {
+                        gameItems.buttons[filter][movingFilters[filter]].x += xDirection * 5;
+                    }
+                }
+                console.log("x: " + gameItems.buttons[typeArmy][movingUnit.idx].x);
+                if ((xDirection === 1 && gameItems.buttons[typeArmy][movingUnit.idx].x > newX) || (xDirection === -1 && gameItems.buttons[typeArmy][movingUnit.idx].x < newX)) {
+                    gameItems.buttons[typeArmy][movingUnit.idx].x = newX;
+                    for (const filter of ['enemiesBorder', 'blocked', 'damaged']) {
+                        if (movingFilters[filter] !== null) {
+                            gameItems.buttons[filter][movingFilters[filter]].x = newX;
+                        }
+                    }
+                }
+            }
+            if (gameItems.buttons[typeArmy][movingUnit.idx].y !== newY) {
+                gameItems.buttons[typeArmy][movingUnit.idx].y += yDirection * 5;
+                for (const filter of ['enemiesBorder', 'blocked', 'damaged']) {
+                    if (movingFilters[filter] !== null) {
+                        gameItems.buttons[filter][movingFilters[filter]].y += yDirection * 5;
+                    }
+                }
+                console.log("y: " + gameItems.buttons[typeArmy][movingUnit.idx].y);
+                if ((yDirection === 1 && gameItems.buttons[typeArmy][movingUnit.idx].y > newY) || (yDirection === -1 && gameItems.buttons[typeArmy][movingUnit.idx].y < newY)) {
+                    gameItems.buttons[typeArmy][movingUnit.idx].y = newY;
+                    for (const filter of ['enemiesBorder', 'blocked', 'damaged']) {
+                        if (movingFilters[filter] !== null) {
+                            gameItems.buttons[filter][movingFilters[filter]].y = newY;
+                        }
+                    }
+                }
+            }
+            if (gameItems.buttons[typeArmy][movingUnit.idx].x === newX && gameItems.buttons[typeArmy][movingUnit.idx].y === newY) {
+                // let copyNewMovingUnit = copyJson(newMovingUnit);
+                // addUnitButton(copyJson(copyNewMovingUnit), typeArmy, () => {event(copyJson(copyNewMovingUnit))}, newX, newY)
+                movingUnit = null;
+                movingFilters.enemiesBorder = null;
+                movingFilters.damaged = null;
+                movingFilters.blocked = null;
+            } else {
+                return;
+            }
+
+        }
         const tmpStatusGame = sendRequest(baseUrl + "/status_game/" + idRoom + "?idPlayer=" + idPlayer, "GET");
-        if (statusGameChanged === null || JSON.stringify(tmpStatusGame) !== JSON.stringify(statusGame)) {
+        if (JSON.stringify(tmpStatusGame) !== JSON.stringify(statusGame)) {
             statusGameChanged = true;
+            for (const army of ['myArmy', 'enemyArmy']) {
+                for (let i = 0; i < tmpStatusGame[army].length; i++) {
+                    if (tmpStatusGame[army][i]['x'] !== statusGame[army][i]['x'] ||
+                        tmpStatusGame[army][i]['y'] !== statusGame[army][i]['y']) {
+                        movingUnit = copyJson(statusGame[army][i]);
+                        typeArmy = army;
+                        break;
+                    }
+                }
+                if (movingUnit !== null) {
+                    break;
+                }
+            }
         } else {
             statusGameChanged = false;
         }
         statusGame = tmpStatusGame;
+
+        if (movingUnit !== null && gameItems.buttons[typeArmy][movingUnit.idx] !== undefined) {
+            console.log(movingUnit.idx);
+            console.log(typeArmy);
+            for (const unit of statusGame[typeArmy]) {
+                if (unit['idx'] === movingUnit.idx) {
+                    newX = (idPlayer === statusGame.firstPlayer) ? beginX + (unit.x * sizeCell) : beginX + ((14 - unit.x) * sizeCell);
+                    newY = (idPlayer === statusGame.firstPlayer) ? beginY + (unit.y * sizeCell) : beginY + ((14 - unit.y) * sizeCell);
+                    newMovingUnit = unit;
+                    // add enemy border
+                    if (typeArmy === "enemyArmy") {
+                        for (let idx = 0; idx < gameItems.buttons['enemiesBorder'].length; idx++) {
+                            console.log(`${gameItems.buttons['enemiesBorder'][idx]}`);
+                            if (gameItems.buttons['enemiesBorder'][idx].x === gameItems.buttons[typeArmy][movingUnit.idx].x && gameItems.buttons['enemiesBorder'][idx].y === gameItems.buttons[typeArmy][movingUnit.idx].y) {
+                                movingFilters.enemiesBorder = idx;
+                            }
+                        }
+                    }
+                    // add blocked icon
+                    if (newMovingUnit.hasAttacked === true) {
+                        for (let idx = 0; idx < gameItems.buttons['blocked'].length; idx++) {
+                            if (gameItems.buttons['blocked'][idx].x === gameItems.buttons[typeArmy][movingUnit.idx].x && gameItems.buttons['blocked'][idx].y === gameItems.buttons[typeArmy][movingUnit.idx].y) {
+                                movingFilters.blocked = idx;
+                            }
+                        }
+                    }
+                    // add damaged effect
+                    if (newMovingUnit.hp < 3) {
+                        for (let idx = 0; idx < gameItems.buttons['damaged'].length; idx++) {
+                            if (gameItems.buttons['damaged'][idx].x === gameItems.buttons[typeArmy][movingUnit.idx].x && gameItems.buttons['damaged'][idx].y === gameItems.buttons[typeArmy][movingUnit.idx].y) {
+                                movingFilters.damaged = idx;
+                            }
+                        }
+                    }
+                    break;
+                }
+            }
+            console.log(`${gameItems.buttons[typeArmy][movingUnit.idx].x} : ${gameItems.buttons[typeArmy][movingUnit.idx].y} - ${newX} : ${newY}`)
+            xDirection = (gameItems.buttons[typeArmy][movingUnit.idx].x < newX) ? 1 : -1;
+            yDirection = (gameItems.buttons[typeArmy][movingUnit.idx].y < newY) ? 1 : -1;
+            unitIsMoving = true;
+            return;
+        } else if (movingUnit !== null && gameItems.buttons[typeArmy][movingUnit.idx] === undefined) {
+            movingUnit = null;
+            movingFilters.enemiesBorder = null;
+            movingFilters.damaged = null;
+            movingFilters.blocked = null;
+        }
+
+
         if (statusGame.turnPlayer === idPlayer) {
-            if (myTurn === null || myTurn === false) {
+            if (myTurn === false) {
                 beginTurn = true;
             }
             myTurn = true;
@@ -582,10 +714,12 @@
         gameItems = initGameItems();
     }
 
-    function displayArmies() {
-        if (statusGameChanged === false && sizeScreenChanged === false) {
+    function displayArmies(idxUnit, army) {
+        console.log('DISPLAY ARMY : ' + beginTurn)
+        if (statusGameChanged === false && sizeScreenChanged === false && unitIsMoving === false) {
             return;
         }
+        unitIsMoving = false;
         if ("myArmy" in gameItems.buttons && "enemyArmy" in gameItems.buttons) {
             destroyArmies();
             destroyArrayButtons("blocked");
@@ -603,8 +737,10 @@
         for (const unit of statusGame.enemyArmy) {
             addUnitButton(unit, "enemyArmy", () => {eventEnemy(unit)})
         }
+        statusGameChanged = false;
         applyFog();
         if (beginTurn === true) {
+            console.log('DISPLAY YOUR TURN !');
             displayYourTurn();
             beginTurn = false;
         }
@@ -648,7 +784,7 @@
 
     function addUnitButton(unit, army, event) {
         let opacity = 1;
-        if (inVisionOfArmy(unit.x, unit.y) === false) {
+        if (army === "enemyArmy" && inVisionOfArmy(unit.x, unit.y) === false) {
             return;
         }
         if (unit.type === "ninja" && unit.invisible === true) {
@@ -758,6 +894,7 @@
     }
 
     function event(unit) {
+        console.log(JSON.stringify(unit))
         if (selectedUnit === null || selectedUnit !== unit.idx) {
             setLineText(unit, 0xFFFFFF);
             if (myTurn === true && unit.hasAttacked === false) {
@@ -1104,6 +1241,10 @@
     
     function sleep(ms) {
         return new Promise(resolve => setTimeout(resolve, ms));
+    }
+
+    function copyJson(object) {
+        return JSON.parse(JSON.stringify(object));
     }
 
 </script>
